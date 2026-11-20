@@ -326,21 +326,6 @@ input[type="hidden"] { display: none; }
           </button>
           <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
         </div>
-        <div class="settings-section-title" style="margin-top:16px;">Security</div>
-        <div class="settings-item">
-          <button class="settings-btn" onclick="changePIN()">
-            <div class="settings-icon" style="background:var(--amber-bg);">🔐</div>
-            <div class="settings-info"><div class="settings-label">Change PIN</div><div class="settings-desc">Update your 4-digit PIN</div></div>
-            <div class="settings-arrow">›</div>
-          </button>
-        </div>
-        <div class="settings-item">
-          <button class="settings-btn" onclick="lockApp()">
-            <div class="settings-icon" style="background:var(--red-bg);">🔒</div>
-            <div class="settings-info"><div class="settings-label">Lock App</div><div class="settings-desc">Return to PIN screen</div></div>
-            <div class="settings-arrow">›</div>
-          </button>
-        </div>
         <div style="padding:24px 4px; font-size:12px; color:var(--text3); line-height:1.6;">
           📱 <strong style="color:var(--text2);">Add to Home Screen:</strong> On iOS, tap Share → Add to Home Screen. On Android, tap ⋮ → Add to Home Screen.<br><br>
           🔐 <strong style="color:var(--text2);">Face ID:</strong> iOS Screen Time can lock individual apps. After adding to Home Screen, use Screen Time → App Limits → add this app.<br><br>
