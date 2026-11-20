@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="O&amp;G Notes">
+<meta name="theme-color" content="#ffffff">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="icon" href="data:image/png;base64,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">
+<title>O&amp;G Notebook</title>
+<style>
+:root {
+  --bg: #f2f6f0; --bg2: #ffffff; --bg3: #f7faf6; --card: #ffffff; --card2: #eef3ec;
+  --accent: #4a7a57; --accent2: #3a6347; --accent-bg: rgba(74,122,87,0.1);
+  --amber: #8a6e28; --amber-bg: rgba(138,110,40,0.12);
+  --red: #b04040; --red-bg: rgba(176,64,64,0.1);
+  --text: #1e2d22; --text2: #5a7060; --text3: #8c9e8f;
+  --border: rgba(0,0,0,0.09); --radius: 12px; --radius-sm: 8px;
+  --shadow: 0 1px 6px rgba(0,0,0,0.07);
+  --line: 28px;
+  --hand: "Noteworthy", "Bradley Hand", "Segoe Print", -apple-system, system-ui, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; background: var(--bg2); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif; overflow: hidden; }
+body.plain { --hand: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; }
+button { font-family: inherit; }
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+
+/* ── TOP ── */
+.topbar { background: var(--bg2); padding: max(12px, env(safe-area-inset-top)) 16px 8px 20px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-shrink: 0; }
+.topbar-title { font-size: 17px; font-weight: 700; }
+.topbar-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.top-actions { display: flex; align-items: center; gap: 6px; }
+.seg { display: flex; background: var(--bg3); border: 1px solid var(--border); border-radius: 9px; padding: 2px; }
+.seg button { border: none; background: none; font-size: 15px; padding: 4px 9px; border-radius: 7px; cursor: pointer; opacity: 0.55; }
+.seg button.on { background: var(--bg2); box-shadow: 0 1px 3px rgba(0,0,0,0.1); opacity: 1; }
+.icon-btn { background: none; border: none; color: var(--text2); cursor: pointer; padding: 6px; border-radius: 8px; font-size: 20px; }
+.daybar { display: flex; align-items: center; justify-content: space-between; padding: 4px 10px 10px; border-bottom: 1px solid var(--border); background: var(--bg2); flex-shrink: 0; }
+.day-arrow { background: none; border: none; font-size: 22px; color: var(--accent2); padding: 4px 14px; cursor: pointer; }
+.day-label { text-align: center; cursor: pointer; }
+.day-main { font-family: var(--hand); font-size: 20px; font-weight: 600; color: var(--text); }
+.day-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
+.day-sub.back { color: var(--accent2); font-weight: 600; }
+
+/* ── RULED PAGE ── */
+#page { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  background-color: #fffffd;
+  background-image:
+    linear-gradient(90deg, transparent 40px, rgba(176,64,64,0.22) 40px, rgba(176,64,64,0.22) 41px, transparent 41px),
+    repeating-linear-gradient(to bottom, transparent 0, transparent 27px, rgba(74,122,87,0.17) 27px, rgba(74,122,87,0.17) 28px);
+  background-attachment: local;
+  padding-bottom: max(140px, calc(env(safe-area-inset-bottom) + 140px));
+  transition: opacity 0.15s;
+}
+#page.turning { opacity: 0.25; }
+.snap { position: relative; }
+.sec { height: var(--line); display: flex; align-items: flex-end; padding: 0 16px 5px 52px; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; gap: 6px; }
+.sec.carried { color: var(--amber); }
+.sec .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c); display: inline-block; margin-bottom: 1px; }
+
+/* sticker */
+.stk-wrap { padding: 7px 0 7px; }
+.sticker { position: relative; background: #fff; border: 1px solid rgba(0,0,0,0.08); border-left: 6px solid var(--c); border-radius: 6px; margin: 0 16px 0 14px; padding: 8px 52px 8px 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 3px 10px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.15s; }
+.entry:nth-of-type(odd) .sticker { transform: rotate(-0.5deg); }
+.entry:nth-of-type(even) .sticker { transform: rotate(0.4deg); }
+.sticker:active { transform: scale(0.98) !important; }
+.s-tag { position: absolute; top: 8px; right: 8px; font-size: 10px; font-weight: 700; color: #fff; background: var(--c); padding: 2px 6px; border-radius: 4px; letter-spacing: 0.5px; }
+.barcode { position: absolute; right: 10px; bottom: 8px; width: 26px; height: 18px; opacity: 0.28; background: repeating-linear-gradient(90deg, #222 0 1px, transparent 1px 3px, #222 3px 5px, transparent 5px 6px, #222 6px 7px, transparent 7px 9px); }
+.s-name { font-size: 15px; font-weight: 700; letter-spacing: 0.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.s-meta { font-size: 12.5px; color: var(--text2); margin-top: 2px; font-variant-numeric: tabular-nums; display: flex; flex-wrap: wrap; gap: 0 10px; }
+.s-note { font-size: 13px; color: var(--text); margin-top: 3px; line-height: 1.35; }
+.s-flag { font-size: 10.5px; font-weight: 600; padding: 1px 6px; border-radius: 10px; background: var(--accent-bg); color: var(--accent2); }
+.s-flag.dc { background: rgba(0,0,0,0.06); color: var(--text3); }
+.sticker.discharged { opacity: 0.6; }
+
+/* tasks */
+.task { height: var(--line); display: flex; align-items: center; gap: 10px; padding: 0 16px 0 50px; }
+.cb { width: 18px; height: 18px; border: 1.5px solid var(--text3); border-radius: 4px; background: transparent; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; cursor: pointer; padding: 0; }
+.task.done .cb { background: var(--accent); border-color: var(--accent); }
+.cb.ghost { border-style: dashed; border-color: rgba(74,122,87,0.35); color: var(--accent); font-size: 14px; font-weight: 500; cursor: default; }
+.t-text { flex: 1; min-width: 0; font-family: var(--hand); font-size: 16px; line-height: 26px; color: #23334f; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: text; }
+.task.done .t-text { text-decoration: line-through; color: var(--text3); }
+.t-carry { font-size: 10.5px; color: var(--amber); flex-shrink: 0; font-weight: 600; }
+.t-input { flex: 1; min-width: 0; border: none; background: transparent; font-family: var(--hand); font-size: 16px; line-height: 26px; color: #23334f; outline: none; padding: 0; }
+.t-input::placeholder { color: rgba(74,122,87,0.4); }
+
+/* banner, empty */
+.banner { margin: 6px 14px; padding: 10px 12px; border-radius: var(--radius-sm); background: #fbf6e9; border: 1px solid rgba(138,110,40,0.25); font-size: 13px; color: #5c4a18; line-height: 1.4; }
+.banner b { font-weight: 700; }
+.banner-btns { display: flex; gap: 8px; margin-top: 8px; }
+.banner-btns button { border: none; border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600; background: var(--amber); color: #fff; cursor: pointer; }
+.banner-btns button.ghost { background: transparent; color: var(--amber); }
+.empty { padding: 28px 52px 0; font-family: var(--hand); color: var(--text3); font-size: 17px; line-height: 28px; }
+
+/* FAB */
+.fab { position: fixed; bottom: max(28px, calc(env(safe-area-inset-bottom) + 20px)); right: 22px; width: 58px; height: 58px; border-radius: 50%; background: var(--accent); border: none; color: white; font-size: 28px; cursor: pointer; box-shadow: 0 4px 16px rgba(74,122,87,0.4); display: flex; align-items: center; justify-content: center; z-index: 100; }
+.fab:active { transform: scale(0.93); }
+
+/* SHEETS */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+.overlay.visible { opacity: 1; pointer-events: all; }
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; background: var(--bg2); border-radius: 20px 20px 0 0; box-shadow: 0 -4px 24px rgba(0,0,0,0.1); z-index: 201; transform: translateY(105%); transition: transform 0.35s cubic-bezier(0.32,0.72,0,1); max-height: 94vh; display: flex; flex-direction: column; }
+.sheet.open { transform: translateY(0); }
+.handle { width: 36px; height: 4px; border-radius: 2px; background: rgba(0,0,0,0.12); margin: 10px auto 0; flex-shrink: 0; }
+.sheet-header { padding: 12px 20px 10px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.sheet-title { font-size: 18px; font-weight: 700; }
+.sheet-body { flex: 1; overflow-y: auto; padding: 0 20px 16px; }
+.sheet-actions { padding: 12px 20px max(14px, env(safe-area-inset-bottom)); display: flex; gap: 10px; border-top: 1px solid var(--border); flex-shrink: 0; }
+.scan-btn { width: 100%; margin-top: 16px; padding: 16px; background: var(--accent-bg); border: 1.5px dashed var(--accent); border-radius: var(--radius); color: var(--accent2); font-size: 15px; font-weight: 600; cursor: pointer; }
+.scan-btn:active { background: rgba(74,122,87,0.18); }
+.link-btn { background: none; border: none; color: var(--accent2); font-size: 13px; padding: 8px 0 0; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.ocr-status { font-size: 12.5px; color: var(--accent2); margin-top: 8px; min-height: 0; }
+.ocr-status:empty { display: none; }
+.ocr-status.warn { color: var(--amber); }
+.form-group { margin-top: 14px; }
+.form-label { font-size: 13px; color: var(--text2); margin-bottom: 6px; display: block; }
+.form-input, .form-textarea { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 11px 14px; font-size: 16px; color: var(--text); font-family: inherit; -webkit-appearance: none; }
+.form-input:focus, .form-textarea:focus { outline: none; border-color: var(--accent); }
+.form-input.filled { border-color: var(--accent); background: rgba(74,122,87,0.06); }
+.form-textarea { resize: none; min-height: 90px; line-height: 1.4; font-size: 14px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.areas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.area-chip { border: 1.5px solid var(--c); background: transparent; color: var(--c); border-radius: 10px; padding: 9px 4px; font-size: 13px; font-weight: 600; cursor: pointer; line-height: 1.15; }
+.area-chip small { display: block; font-size: 10.5px; font-weight: 500; opacity: 0.85; margin-top: 2px; }
+.area-chip.on { background: var(--c); color: #fff; }
+.toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; font-size: 14px; }
+.toggle-row small { display: block; font-size: 12px; color: var(--text2); margin-top: 2px; }
+.switch { position: relative; width: 50px; height: 30px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch span { position: absolute; inset: 0; background: rgba(0,0,0,0.15); border-radius: 15px; transition: background 0.2s; }
+.switch span::after { content: ''; position: absolute; left: 3px; top: 3px; width: 24px; height: 24px; background: #fff; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: transform 0.2s; }
+.switch input:checked + span { background: var(--accent); }
+.switch input:checked + span::after { transform: translateX(20px); }
+.btn { flex: 1; padding: 14px; border-radius: var(--radius); border: none; font-size: 15px; font-weight: 600; cursor: pointer; }
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--accent); color: white; }
+.btn-secondary { background: var(--card2); color: var(--text2); flex: 0.5; }
+.more-actions { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 6px; }
+.row-btn { width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 2px; background: none; border: none; border-bottom: 1px solid var(--border); font-size: 15px; color: var(--text); cursor: pointer; text-align: left; }
+.row-btn:last-child { border-bottom: none; }
+.row-btn .ic { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; background: var(--accent-bg); }
+.row-btn small { display: block; font-size: 12px; color: var(--text2); margin-top: 1px; }
+.row-btn.danger { color: var(--red); }
+.row-btn.danger .ic { background: var(--red-bg); }
+.settings-title { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; padding: 18px 2px 4px; font-weight: 600; }
+.fine { font-size: 12px; color: var(--text3); line-height: 1.6; padding: 18px 2px 4px; }
+.fine b { color: var(--text2); }
+.toast { position: fixed; left: 50%; bottom: max(100px, calc(env(safe-area-inset-bottom) + 96px)); transform: translate(-50%, 20px); background: #1e2d22; color: #fff; font-size: 13.5px; padding: 10px 16px; border-radius: 12px; opacity: 0; pointer-events: none; transition: opacity 0.25s, transform 0.25s; z-index: 300; max-width: calc(100% - 40px); text-align: center; line-height: 1.4; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">O&amp;G Notebook</div>
+      <div class="topbar-sub" id="topbar-sub"></div>
+    </div>
+    <div class="top-actions">
+      <div class="seg" role="group" aria-label="Layout">
+        <button id="seg-notebook" onclick="setGroup('notebook')" aria-label="Notebook page">📓</button>
+        <button id="seg-location" onclick="setGroup('location')" aria-label="Group by location">📍</button>
+      </div>
+      <button class="icon-btn" onclick="openSettings()" aria-label="Settings">⚙️</button>
+    </div>
+  </div>
+  <div class="daybar">
+    <button class="day-arrow" onclick="go(-1)" aria-label="Previous day">‹</button>
+    <div class="day-label" onclick="goToday()">
+      <div class="day-main" id="day-main"></div>
+      <div class="day-sub" id="day-sub"></div>
+    </div>
+    <button class="day-arrow" onclick="go(1)" aria-label="Next day">›</button>
+  </div>
+  <div id="page"></div>
+  <button class="fab" onclick="openPatient(null)" aria-label="Add patient">+</button>
+</div>
+
+<!-- PATIENT SHEET -->
+<div class="overlay" id="p-overlay" onclick="closePatient()"></div>
+<div class="sheet" id="p-sheet">
+  <div class="handle"></div>
+  <div class="sheet-header">
+    <div class="sheet-title" id="p-title">Stick in patient</div>
+    <button class="icon-btn" onclick="closePatient()" aria-label="Close">✕</button>
+  </div>
+  <div class="sheet-body">
+    <button class="scan-btn" type="button" onclick="scanSticker()">📷 Scan patient sticker</button>
+    <div class="ocr-status" id="ocr-status"></div>
+    <button class="link-btn" type="button" onclick="togglePaste()">or paste sticker text (Live Text)</button>
+    <div id="paste-wrap" hidden>
+      <div class="form-group" style="margin-top:8px;">
+        <textarea class="form-textarea" id="paste-text" placeholder="Long-press the sticker text in Camera or Photos → Copy → paste here"></textarea>
+      </div>
+      <button class="btn btn-secondary" type="button" style="width:100%;margin-top:8px;flex:none;" onclick="parsePasted()">Fill in details from text</button>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="p-name">Name</label>
+      <input class="form-input" id="p-name" placeholder="SURNAME, Firstname" autocapitalize="words" autocomplete="off">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="p-urn">URN</label>
+        <input class="form-input" id="p-urn" placeholder="1234567" inputmode="numeric" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="p-dob">DOB</label>
+        <input class="form-input" id="p-dob" placeholder="dd/mm/yyyy" inputmode="numeric" autocomplete="off" oninput="fmtDobInput(this)">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="p-note">Note</label>
+      <input class="form-input" id="p-note" placeholder="G2P1 39+2, IOL for PET" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Where</label>
+      <div class="areas" id="p-areas"></div>
+    </div>
+    <div class="toggle-row">
+      <div>Keep on my list until discharged<small>Rolls onto tomorrow's page automatically</small></div>
+      <label class="switch"><input type="checkbox" id="p-carry" onchange="carryTouched=true"><span></span></label>
+    </div>
+
+    <div class="more-actions" id="p-more" hidden>
+      <button class="row-btn" type="button" onclick="logProcedure()"><span class="ic">📒</span><span>Log procedure in Logbook<small>Copies URN and date, adds a reminder job</small></span></button>
+      <button class="row-btn" type="button" id="p-discharge" onclick="toggleDischarge()"></button>
+      <button class="row-btn danger" type="button" onclick="deletePatient()"><span class="ic">🗑</span><span>Delete patient</span></button>
+    </div>
+  </div>
+  <div class="sheet-actions">
+    <button class="btn btn-secondary" type="button" onclick="closePatient()">Cancel</button>
+    <button class="btn btn-primary" type="button" onclick="savePatient()">Save</button>
+  </div>
+</div>
+
+<!-- SETTINGS SHEET -->
+<div class="overlay" id="s-overlay" onclick="closeSettings()"></div>
+<div class="sheet" id="s-sheet">
+  <div class="handle"></div>
+  <div class="sheet-header">
+    <div class="sheet-title">Settings</div>
+    <button class="icon-btn" onclick="closeSettings()" aria-label="Close">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div class="settings-title">Export and backup</div>
+    <button class="row-btn" onclick="exportCSV()"><span class="ic">📊</span><span>Export as CSV<small>Patients and jobs — AirDrop to your computer or save to Files</small></span></button>
+    <button class="row-btn" onclick="exportJSON()"><span class="ic" style="background:var(--amber-bg)">💾</span><span>Backup (JSON)<small>Full copy for restoring or moving phones</small></span></button>
+    <button class="row-btn" onclick="document.getElementById('import-file').click()"><span class="ic">📂</span><span>Restore backup<small>Load a JSON backup file</small></span></button>
+    <input type="file" id="import-file" accept=".json,application/json" hidden onchange="importJSON(event)">
+    <button class="row-btn danger" onclick="clearOld(true)"><span class="ic">🧹</span><span id="clear-label">Clear old patients<small></small></span></button>
+
+    <div class="settings-title">Preferences</div>
+    <div class="toggle-row" style="margin-top:6px;">
+      <div>Fortnightly export reminder<small>Shows a note on today's page every 14 days</small></div>
+      <label class="switch"><input type="checkbox" id="set-reminder" onchange="settings.exportReminder=this.checked;persist();render()"><span></span></label>
+    </div>
+    <div class="toggle-row">
+      <div>Handwritten jobs<small>Notebook-style font for your to-dos</small></div>
+      <label class="switch"><input type="checkbox" id="set-hand" onchange="settings.plainFont=!this.checked;persist();applyFont();render()"><span></span></label>
+    </div>
+
+    <div class="fine">
+      🔒 <b>Privacy:</b> everything is stored only on this phone. Sticker photos are read and then discarded — they're never saved to the app or your camera roll.<br><br>
+      📒 <b>Logbook link:</b> on a patient, tap "Log procedure in Logbook". Then open your Logbook, tap +, and tap "Paste from Notebook".<br><br>
+      ✏️ <b>Tips:</b> swipe the page left/right to change day. Tap a job to edit it — clear the text to delete it.
+    </div>
+  </div>
+</div>
+
+<input type="file" id="cam" accept="image/*" capture="environment" hidden onchange="onPhoto(event)">
+<canvas id="cv" hidden></canvas>
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// AREAS
+// ═══════════════════════════════════════════════════════
+const AREAS = [
+  { id: 'bs',   short: 'BS',   label: 'Birth suite',      color: '#b0577a', carry: true  },
+  { id: 'pac',  short: 'PAC',  label: 'PAC / MDAU',       color: '#b5762a', carry: true  },
+  { id: 'anc',  short: 'ANC',  label: 'Antenatal clinic', color: '#2f8a80', carry: false },
+  { id: 'gyn',  short: 'GYN',  label: 'Gynae clinic',     color: '#7a62a8', carry: false },
+  { id: 'ed',   short: 'ED',   label: 'ED consult',       color: '#b04040', carry: false },
+  { id: 'inpt', short: 'INPT', label: 'Inpatient',        color: '#4a6f9a', carry: true  },
+];
+const AREA = Object.fromEntries(AREAS.map(a => [a.id, a]));
+
+// ═══════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════
+const pad = n => String(n).padStart(2, '0');
+function localISO(d = new Date()) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
+function addDays(iso, n) { const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + n); return localISO(d); }
+function daysBetween(a, b) { return Math.round((new Date(b + 'T12:00:00') - new Date(a + 'T12:00:00')) / 86400000); }
+function shortDate(iso) { return new Date(iso + 'T12:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'short' }); }
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function ageFrom(dob) {
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(dob || ''); if (!m) return '';
+  const b = new Date(+m[3], +m[2] - 1, +m[1]); if (isNaN(b)) return '';
+  const n = new Date(); let a = n.getFullYear() - b.getFullYear();
+  if (n.getMonth() < b.getMonth() || (n.getMonth() === b.getMonth() && n.getDate() < b.getDate())) a--;
+  return a >= 0 && a < 120 ? a + 'y' : '';
+}
+let toastTimer;
+function toast(msg, ms = 3200) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), ms); }
+
+// ═══════════════════════════════════════════════════════
+// STORAGE (localStorage — stays on this phone)
+// ═══════════════════════════════════════════════════════
+const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
+let patients = load('nb_patients', []);
+let jobs = load('nb_jobs', []);
+let settings = load('nb_settings', {});
+function persist() {
+  localStorage.setItem('nb_patients', JSON.stringify(patients));
+  localStorage.setItem('nb_jobs', JSON.stringify(jobs));
+  localStorage.setItem('nb_settings', JSON.stringify(settings));
+}
+
+let viewDate = localISO();
+let lastToday = viewDate;
+let justExported = false;
+
+// ═══════════════════════════════════════════════════════
+// WHAT SHOWS ON A PAGE
+// ═══════════════════════════════════════════════════════
+// A job shows on day D if it existed by D and wasn't finished before D.
+function taskVisible(t, D) { return t.createdDate <= D && (!t.done || t.doneDate >= D); }
+function taskDoneOn(t, D) { return t.done && t.doneDate <= D; }
+// A patient is on day D's page if seen that day, or if they're a "keep on list" patient not yet discharged.
+function patientOnPage(p, D) {
+  if (p.createdDate > D) return false;
+  if (p.createdDate === D) return true;
+  return !!p.carry && (!p.dischargedDate || p.dischargedDate >= D);
+}
+// Hangover: patients not on the page who still had unfinished jobs from earlier days.
+function patientCarried(p, D) {
+  return !patientOnPage(p, D) && p.createdDate < D && p.tasks.some(t => t.createdDate < D && (!t.done || t.doneDate >= D));
+}
+function openJobCount(D) {
+  let n = 0;
+  patients.forEach(p => { if (patientOnPage(p, D) || patientCarried(p, D)) n += p.tasks.filter(t => taskVisible(t, D) && !taskDoneOn(t, D)).length; });
+  n += jobs.filter(t => taskVisible(t, D) && !taskDoneOn(t, D)).length;
+  return n;
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════
+function taskRow(t, D, pid) {
+  const done = taskDoneOn(t, D);
+  const carried = t.createdDate < D && !done;
+  return `<div class="task snap ${done ? 'done' : ''}">
+    <button class="cb" onclick="toggleTask('${pid}','${t.id}')" aria-label="${done ? 'Untick' : 'Tick'} job">${done ? '✓' : ''}</button>
+    <span class="t-text" onclick="editTask(this,'${pid}','${t.id}')">${esc(t.text)}</span>
+    ${carried ? `<span class="t-carry">↩ ${shortDate(t.createdDate)}</span>` : ''}
+  </div>`;
+}
+function addRow(pid) {
+  return `<div class="task snap">
+    <span class="cb ghost" aria-hidden="true">+</span>
+    <input class="t-input" data-add="${pid || '_'}" placeholder="add a job…" enterkeyhint="done" autocomplete="off"
+      onkeydown="if(event.key==='Enter'){event.preventDefault();addTask('${pid}',this,true)}" onblur="addTask('${pid}',this,false)">
+  </div>`;
+}
+function stickerHTML(p, D) {
+  const a = AREA[p.area] || AREAS[0];
+  const dayN = daysBetween(p.createdDate, D) + 1;
+  const isDc = p.dischargedDate && p.dischargedDate <= D;
+  const age = ageFrom(p.dob);
+  const meta = [
+    p.urn ? `URN ${esc(p.urn)}` : '',
+    p.dob ? `${esc(p.dob)}${age ? ' (' + age + ')' : ''}` : '',
+  ].filter(Boolean).map(x => `<span>${x}</span>`).join('');
+  const flags = [
+    p.carry && dayN > 1 && !isDc ? `<span class="s-flag">Day ${dayN}</span>` : '',
+    isDc ? `<span class="s-flag dc">Discharged</span>` : '',
+    !patientOnPage(p, D) ? `<span class="s-flag dc">Seen ${shortDate(p.createdDate)}</span>` : '',
+  ].join('');
+  const tasks = p.tasks.filter(t => taskVisible(t, D)).sort((x, y) => x.createdAt - y.createdAt);
+  return `<div class="entry">
+    <div class="stk-wrap snap">
+      <div class="sticker ${isDc ? 'discharged' : ''}" style="--c:${a.color}" onclick="openPatient('${p.id}')">
+        <span class="s-tag">${a.short}</span>
+        <div class="s-name">${esc(p.name) || '<span style="color:var(--text3);font-weight:500">No name</span>'}</div>
+        <div class="s-meta">${meta}${flags}</div>
+        ${p.note ? `<div class="s-note">${esc(p.note)}</div>` : ''}
+        <div class="barcode"></div>
+      </div>
+    </div>
+    ${tasks.map(t => taskRow(t, D, p.id)).join('')}
+    ${addRow(p.id)}
+  </div>`;
+}
+
+function exportBanner(D) {
+  const today = localISO();
+  if (D !== today) return '';
+  if (justExported) {
+    const n = oldPatients().length;
+    if (!n) return '';
+    return `<div class="banner snap"><b>Exported.</b> Clear ${n} old patient${n !== 1 ? 's' : ''} from this phone?<br><span style="font-size:12px;opacity:0.85">Seen or discharged over 14 days ago, with no open jobs.</span>
+      <div class="banner-btns"><button onclick="clearOld(false)">Clear</button><button class="ghost" onclick="justExported=false;render()">Keep</button></div></div>`;
+  }
+  if (settings.exportReminder === false || !patients.length) return '';
+  if (settings.snoozeUntil && settings.snoozeUntil > today) return '';
+  const last = settings.lastExport;
+  if (last && daysBetween(last, today) < 14) return '';
+  return `<div class="banner snap"><b>Fortnightly export</b><br>${last ? `Last export ${daysBetween(last, today)} days ago.` : 'Not exported yet.'} Save a copy to your computer, then tidy up old patients.
+    <div class="banner-btns"><button onclick="exportCSV()">Export</button><button class="ghost" onclick="snoozeExport()">Later</button></div></div>`;
+}
+
+function render() {
+  const D = viewDate, today = localISO();
+  // header
+  const d = new Date(D + 'T12:00:00');
+  document.getElementById('day-main').textContent = d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' });
+  const diff = daysBetween(today, D);
+  const sub = document.getElementById('day-sub');
+  sub.textContent = diff === 0 ? 'Today' : diff === -1 ? 'Yesterday · tap for today' : diff === 1 ? 'Tomorrow · tap for today' : 'Tap to go to today';
+  sub.className = 'day-sub' + (diff ? ' back' : '');
+  document.getElementById('seg-notebook').classList.toggle('on', (settings.groupMode || 'notebook') === 'notebook');
+  document.getElementById('seg-location').classList.toggle('on', settings.groupMode === 'location');
+
+  const onPage = patients.filter(p => patientOnPage(p, D));
+  const carried = patients.filter(p => patientCarried(p, D)).sort((a, b) => a.createdAt - b.createdAt);
+  const open = openJobCount(D);
+  document.getElementById('topbar-sub').textContent = `${onPage.length} patient${onPage.length !== 1 ? 's' : ''} · ${open} job${open !== 1 ? 's' : ''} open`;
+
+  let html = exportBanner(D);
+  if (carried.length) {
+    const n = carried.reduce((s, p) => s + p.tasks.filter(t => t.createdDate < D && !taskDoneOn(t, D)).length, 0);
+    html += `<div class="sec carried snap">↩ Carried over${n ? ' · ' + n + ' open' : ''}</div>` + carried.map(p => stickerHTML(p, D)).join('');
+  }
+  if (settings.groupMode === 'location') {
+    AREAS.forEach(a => {
+      const list = onPage.filter(p => p.area === a.id).sort((x, y) => x.createdAt - y.createdAt);
+      if (!list.length) return;
+      html += `<div class="sec snap" style="--c:${a.color}"><span class="dot"></span>${a.label} · ${list.length}</div>` + list.map(p => stickerHTML(p, D)).join('');
+    });
+  } else {
+    const sorted = [...onPage].sort((x, y) => (x.createdDate === D) - (y.createdDate === D) || x.createdAt - y.createdAt);
+    if (sorted.length && carried.length) html += `<div class="sec snap">On the list</div>`;
+    html += sorted.map(p => stickerHTML(p, D)).join('');
+  }
+  if (!onPage.length && !carried.length) {
+    html += `<div class="empty snap">${diff === 0 ? 'A fresh page.<br>Tap + to stick in a patient.' : 'Nothing written on this page.'}</div>`;
+  }
+  const loose = jobs.filter(t => taskVisible(t, D)).sort((x, y) => x.createdAt - y.createdAt);
+  html += `<div class="sec snap" style="margin-top:0">Other jobs</div>` + loose.map(t => taskRow(t, D, '')).join('') + addRow('');
+
+  document.getElementById('page').innerHTML = html;
+  snapToLines();
+}
+
+// Keep every block a whole number of ruled lines tall, so jobs sit on the lines.
+function snapToLines() {
+  document.querySelectorAll('#page .snap').forEach(el => {
+    el.style.minHeight = '';
+    const h = el.getBoundingClientRect().height;
+    const lines = Math.max(1, Math.ceil((h - 0.5) / 28));
+    el.style.minHeight = (lines * 28) + 'px';
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// DAY NAVIGATION
+// ═══════════════════════════════════════════════════════
+function go(n) {
+  const pg = document.getElementById('page');
+  pg.classList.add('turning');
+  setTimeout(() => { viewDate = addDays(viewDate, n); render(); pg.scrollTop = 0; pg.classList.remove('turning'); }, 120);
+}
+function goToday() { if (viewDate !== localISO()) { viewDate = localISO(); render(); document.getElementById('page').scrollTop = 0; } }
+function setGroup(m) { settings.groupMode = m; persist(); render(); }
+
+(function swipe() {
+  const pg = document.getElementById('page');
+  let sx = null, sy = 0;
+  pg.addEventListener('touchstart', e => { if (e.target.closest('input,textarea')) { sx = null; return; } sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+  pg.addEventListener('touchend', e => {
+    if (sx === null) return;
+    const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy; sx = null;
+    if (Math.abs(dx) > 70 && Math.abs(dy) < 45) go(dx < 0 ? 1 : -1);
+  }, { passive: true });
+})();
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return;
+  const t = localISO();
+  if (t !== lastToday) { if (viewDate === lastToday) viewDate = t; lastToday = t; render(); }
+});
+
+// ═══════════════════════════════════════════════════════
+// JOBS
+// ═══════════════════════════════════════════════════════
+function taskList(pid) { return pid ? (patients.find(p => p.id === pid)?.tasks) : jobs; }
+function findTask(pid, tid) { return (taskList(pid) || []).find(t => t.id === tid); }
+function addTask(pid, input, keepFocus) {
+  const v = input.value.trim(); if (!v) return;
+  const list = taskList(pid); if (!list) return;
+  input.value = '';
+  list.push({ id: uid(), text: v, done: false, doneDate: null, createdDate: viewDate, createdAt: Date.now() });
+  persist();
+  const page = document.getElementById('page'); const st = page.scrollTop;
+  render(); page.scrollTop = st;
+  if (keepFocus) { const next = document.querySelector(`[data-add="${pid || '_'}"]`); if (next) next.focus(); }
+}
+function toggleTask(pid, tid) {
+  const t = findTask(pid, tid); if (!t) return;
+  const nowDone = !taskDoneOn(t, viewDate);
+  t.done = nowDone; t.doneDate = nowDone ? viewDate : null;
+  persist();
+  const page = document.getElementById('page'); const st = page.scrollTop;
+  render(); page.scrollTop = st;
+}
+function removeTask(pid, tid) {
+  const list = taskList(pid); if (!list) return;
+  const i = list.findIndex(t => t.id === tid); if (i >= 0) list.splice(i, 1);
+}
+function editTask(span, pid, tid) {
+  const t = findTask(pid, tid); if (!t) return;
+  const inp = document.createElement('input');
+  inp.className = 't-input'; inp.value = t.text; inp.enterKeyHint = 'done';
+  span.replaceWith(inp); inp.focus();
+  let done = false;
+  const save = () => {
+    if (done) return; done = true;
+    const v = inp.value.trim();
+    if (v) t.text = v; else removeTask(pid, tid);
+    persist();
+    const page = document.getElementById('page'); const st = page.scrollTop;
+    render(); page.scrollTop = st;
+  };
+  inp.addEventListener('blur', save);
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); inp.blur(); } });
+}
+
+// ═══════════════════════════════════════════════════════
+// PATIENT SHEET
+// ═══════════════════════════════════════════════════════
+let editingId = null, selArea = 'bs', carryTouched = false;
+
+function renderAreaChips() {
+  document.getElementById('p-areas').innerHTML = AREAS.map(a =>
+    `<button type="button" class="area-chip ${a.id === selArea ? 'on' : ''}" style="--c:${a.color}" onclick="pickArea('${a.id}')">${a.short}<small>${a.label}</small></button>`).join('');
+}
+function pickArea(id) {
+  selArea = id; renderAreaChips();
+  if (!carryTouched) document.getElementById('p-carry').checked = AREA[id].carry;
+}
+function setField(id, v) { const el = document.getElementById(id); el.value = v || ''; el.classList.remove('filled'); }
+function openPatient(id) {
+  editingId = id; carryTouched = !!id;
+  const p = id ? patients.find(x => x.id === id) : null;
+  document.getElementById('p-title').textContent = p ? 'Edit patient' : 'Stick in patient';
+  setField('p-name', p?.name); setField('p-urn', p?.urn); setField('p-dob', p?.dob); setField('p-note', p?.note);
+  selArea = p?.area || settings.lastArea || 'bs';
+  renderAreaChips();
+  document.getElementById('p-carry').checked = p ? !!p.carry : AREA[selArea].carry;
+  document.getElementById('ocr-status').textContent = '';
+  document.getElementById('paste-wrap').hidden = true;
+  document.getElementById('paste-text').value = '';
+  document.getElementById('p-more').hidden = !p;
+  if (p) {
+    const dc = document.getElementById('p-discharge');
+    dc.hidden = !p.carry;
+    dc.innerHTML = p.dischargedDate
+      ? `<span class="ic">↩</span><span>Put back on my list<small>Discharged ${shortDate(p.dischargedDate)}</small></span>`
+      : `<span class="ic">🏠</span><span>Discharged / handed over<small>Stops rolling onto future pages</small></span>`;
+  }
+  document.getElementById('p-overlay').classList.add('visible');
+  document.getElementById('p-sheet').classList.add('open');
+}
+function closePatient() {
+  document.getElementById('p-overlay').classList.remove('visible');
+  document.getElementById('p-sheet').classList.remove('open');
+  document.activeElement?.blur?.();
+}
+function savePatient() {
+  const name = document.getElementById('p-name').value.trim();
+  const urn = document.getElementById('p-urn').value.trim();
+  const dob = document.getElementById('p-dob').value.trim();
+  const note = document.getElementById('p-note').value.trim();
+  const carry = document.getElementById('p-carry').checked;
+  if (!name && !urn && !note) { const s = document.getElementById('ocr-status'); s.className = 'ocr-status warn'; s.textContent = 'Add a name, URN or note first.'; return; }
+  if (editingId) {
+    const p = patients.find(x => x.id === editingId);
+    Object.assign(p, { name, urn, dob, note, area: selArea, carry, updatedAt: Date.now() });
+    if (!carry) p.dischargedDate = null;
+  } else {
+    patients.push({ id: uid(), name, urn, dob, note, area: selArea, carry, createdDate: viewDate, createdAt: Date.now(), dischargedDate: null, tasks: [] });
+  }
+  settings.lastArea = selArea;
+  persist(); closePatient(); render();
+}
+function toggleDischarge() {
+  const p = patients.find(x => x.id === editingId); if (!p) return;
+  p.dischargedDate = p.dischargedDate ? null : viewDate;
+  persist(); closePatient(); render();
+}
+function deletePatient() {
+  const p = patients.find(x => x.id === editingId); if (!p) return;
+  if (!confirm(`Delete ${p.name || 'this patient'} and their jobs?`)) return;
+  patients = patients.filter(x => x.id !== editingId);
+  persist(); closePatient(); render();
+}
+async function logProcedure() {
+  const p = patients.find(x => x.id === editingId); if (!p) return;
+  const txt = `URN ${p.urn || ''} · ${viewDate} · from O&G Notebook`;
+  let copied = false;
+  try { await navigator.clipboard.writeText(txt); copied = true; } catch {}
+  if (!p.tasks.some(t => !t.done && /logbook/i.test(t.text))) {
+    p.tasks.push({ id: uid(), text: 'Log procedure in Logbook', done: false, doneDate: null, createdDate: viewDate, createdAt: Date.now() });
+  }
+  persist(); closePatient(); render();
+  toast(copied ? 'URN copied. Open Logbook → + → Paste from Notebook' : 'Added a "Log procedure" job (couldn\'t copy URN)', 4200);
+}
+function fmtDobInput(el) {
+  const digits = el.value.replace(/\D/g, '').slice(0, 8);
+  let out = digits;
+  if (digits.length > 4) out = digits.slice(0, 2) + '/' + digits.slice(2, 4) + '/' + digits.slice(4);
+  else if (digits.length > 2) out = digits.slice(0, 2) + '/' + digits.slice(2);
+  if (el.value !== out && !(el.value.endsWith('/') && el.value.length > out.length)) el.value = out;
+}
+
+// ═══════════════════════════════════════════════════════
+// STICKER SCANNING (on-device — photo is never stored)
+// ═══════════════════════════════════════════════════════
+function scanSticker() { document.getElementById('cam').click(); }
+function togglePaste() { const w = document.getElementById('paste-wrap'); w.hidden = !w.hidden; if (!w.hidden) document.getElementById('paste-text').focus(); }
+function ocrStatus(msg, warn) { const s = document.getElementById('ocr-status'); s.className = 'ocr-status' + (warn ? ' warn' : ''); s.textContent = msg; }
+function loadScript(src) { return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); }); }
+
+async function onPhoto(e) {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+  ocrStatus('📖 Reading sticker…');
+  const cv = document.getElementById('cv');
+  try {
+    const url = URL.createObjectURL(file);
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+    URL.revokeObjectURL(url);
+    const MAX = 1800, scale = Math.min(1, MAX / Math.max(img.width, img.height));
+    cv.width = Math.round(img.width * scale); cv.height = Math.round(img.height * scale);
+    const ctx = cv.getContext('2d', { willReadFrequently: true });
+    ctx.drawImage(img, 0, 0, cv.width, cv.height);
+    // greyscale + contrast stretch helps with glossy stickers
+    const d = ctx.getImageData(0, 0, cv.width, cv.height), px = d.data;
+    let lo = 255, hi = 0;
+    for (let i = 0; i < px.length; i += 4) { const g = 0.299 * px[i] + 0.587 * px[i + 1] + 0.114 * px[i + 2]; px[i] = g; if (g < lo) lo = g; if (g > hi) hi = g; }
+    const rng = Math.max(1, hi - lo);
+    for (let i = 0; i < px.length; i += 4) { const g = Math.max(0, Math.min(255, (px[i] - lo) * 255 / rng)); px[i] = px[i + 1] = px[i + 2] = g; }
+    ctx.putImageData(d, 0, 0);
+
+    if (!window.Tesseract) {
+      ocrStatus('📥 First scan — loading the text reader (one-off, needs internet)…');
+      await loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js');
+    }
+    const { data: { text } } = await Tesseract.recognize(cv, 'eng', {
+      logger: m => { if (m.status === 'recognizing text') ocrStatus(`📖 Reading… ${Math.round(m.progress * 100)}%`); }
+    });
+    applyParsed(parseSticker(text), text);
+  } catch (err) {
+    ocrStatus('Couldn\'t read that photo. Try again, or paste the text using Live Text.', true);
+  } finally {
+    // discard the image completely
+    cv.getContext('2d').clearRect(0, 0, cv.width, cv.height); cv.width = cv.height = 0;
+  }
+}
+function parsePasted() {
+  const t = document.getElementById('paste-text').value;
+  if (!t.trim()) { ocrStatus('Paste the sticker text first.', true); return; }
+  applyParsed(parseSticker(t), t, true);
+}
+function applyParsed(r, raw, fromPaste) {
+  let n = 0;
+  [['p-name', r.name], ['p-urn', r.urn], ['p-dob', r.dob]].forEach(([id, v]) => {
+    if (v) { const el = document.getElementById(id); el.value = v; el.classList.add('filled'); n++; }
+  });
+  if (n === 3) ocrStatus('✅ Found name, URN and DOB. Check them, then Save.');
+  else if (n > 0) ocrStatus(`Found ${n} of 3. Fill in the rest${fromPaste ? '' : ' (the text it read is below)'}.`, true);
+  else ocrStatus(`Couldn't pick out the details${fromPaste ? '' : ' — the text it read is below'}. Tip: hold the phone so the text is level and fills the frame.`, true);
+  if (n < 3 && !fromPaste && raw && raw.trim()) {
+    document.getElementById('paste-wrap').hidden = false;
+    document.getElementById('paste-text').value = raw.trim();
+  }
+}
+
+const STOP = new Set(['HOSPITAL','HEALTH','HHS','QUEENSLAND','QLD','LOGAN','WARD','UNIT','DR','MR','MRS','MS','MISS','SEX','MALE','FEMALE','DOB','URN','MRN','UR','ADDRESS','MEDICARE','PHONE','PH','MOB','ROAD','RD','ST','STREET','DRIVE','DR.','AVE','AVENUE','COURT','CT','CRES','PLACE','PL','STATE','NSW','VIC','SA','WA','TAS','NT','ACT','AUSTRALIA','ADMIT','ADMITTED','ADM','BED','ROOM','CONSULTANT','DOCTOR','NOK','RELIGION','DVA','PRIVATE','PUBLIC','METRO','SOUTH','NORTH','EAST','WEST','SERVICE','SERVICES','CENTRE','CENTER','CLINIC','EMERGENCY','DEPARTMENT','PATIENT','NAME','AGE','YRS','EPISODE','VISIT','ENC','DATE','LABEL']);
+const MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
+function titleCase(s) { return s.toLowerCase().replace(/(^|[\s'\-])([a-z])/g, (m, a, b) => a + b.toUpperCase()); }
+function fmtName(raw) {
+  const s = raw.replace(/\s+/g, ' ').trim().replace(/[^A-Za-z ,'\-]/g, '');
+  if (s.includes(',')) {
+    const [sur, ...rest] = s.split(',');
+    return `${sur.trim().toUpperCase()}, ${titleCase(rest.join(' ').trim())}`.replace(/,\s*$/, '');
+  }
+  const w = s.split(' ').filter(Boolean);
+  if (w.length < 2) return s.toUpperCase();
+  // the ALL-CAPS word is the surname when the rest are mixed case; otherwise assume SURNAME first (QH label style)
+  let si = w.findIndex(x => x.length > 1 && x === x.toUpperCase());
+  if (si < 0 || w.every(x => x === x.toUpperCase())) si = 0;
+  const sur = w[si], given = w.filter((_, i) => i !== si);
+  return `${sur.toUpperCase()}, ${titleCase(given.join(' '))}`;
+}
+function parseSticker(raw) {
+  const text = raw.replace(/[|]/g, 'I').replace(/[“”]/g, '"');
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const r = { name: '', urn: '', dob: '' };
+  const yr = y => y.length === 2 ? ((+y > new Date().getFullYear() % 100) ? '19' : '20') + y : y;
+
+  // DOB
+  let m = text.match(/D\.?\s?O\.?\s?B\.?\s*[:\-]?\s*(\d{1,2})\s*[\/\-.]\s*(\d{1,2})\s*[\/\-.]\s*(\d{2,4})/i)
+       || text.match(/\b(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})\b/);
+  if (m && +m[2] >= 1 && +m[2] <= 12 && +m[1] >= 1 && +m[1] <= 31) r.dob = `${pad(m[1])}/${pad(m[2])}/${yr(m[3])}`;
+  else {
+    m = text.match(/\b(\d{1,2})[\s\-]+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?[\s\-]+(\d{2,4})\b/i);
+    if (m) r.dob = `${pad(m[1])}/${pad(MONTHS[m[2].toLowerCase()])}/${yr(m[3])}`;
+  }
+  // URN
+  m = text.match(/\b(?:U\.?R\.?N?\.?|MRN|UR\s*No\.?|UR\s*Number|Hosp(?:ital)?\s*No\.?)\s*[:#\-]?\s*([A-Z]{0,2}\s?\d{5,10})/i);
+  if (m) r.urn = m[1].replace(/\s/g, '');
+  else {
+    const dobDigits = r.dob.replace(/\D/g, '');
+    const nums = [...text.matchAll(/(?<![\d\/\-.])(\d{6,10})(?![\d\/\-.])/g)].map(x => x[1]).filter(n => n !== dobDigits && !/^0?4\d{8}$/.test(n));
+    if (nums[0]) r.urn = nums[0];
+  }
+  // Name
+  m = text.match(/\b(?:Name|Patient)\s*[:\-]\s*([A-Za-z'\-]+(?:[ ,]+[A-Za-z'\-]+){1,3})/i);
+  if (m) r.name = fmtName(m[1]);
+  if (!r.name) {
+    for (const l of lines) {
+      const mm = l.match(/^([A-Z][A-Z'\-]+(?:\s[A-Z][A-Z'\-]+)?)\s*,\s*([A-Za-z][A-Za-z'\-]+(?:\s[A-Za-z][A-Za-z'\-]+)?)/);
+      if (mm && !STOP.has(mm[1].toUpperCase())) { r.name = `${mm[1]}, ${titleCase(mm[2])}`; break; }
+    }
+  }
+  if (!r.name) {
+    for (const l of lines) {
+      const w = l.replace(/[^A-Za-z'\- ]/g, ' ').split(/\s+/).filter(Boolean);
+      if (w.length >= 2 && w.length <= 4 && w.every(x => /^[A-Z][A-Za-z'\-]+$/.test(x)) && w.some(x => /^[A-Z'\-]{2,}$/.test(x)) && !w.some(x => STOP.has(x.toUpperCase()))) {
+        r.name = fmtName(w.join(' ')); break;
+      }
+    }
+  }
+  return r;
+}
+
+// ═══════════════════════════════════════════════════════
+// EXPORT / BACKUP / TIDY
+// ═══════════════════════════════════════════════════════
+async function saveFile(name, content, type) {
+  const blob = new Blob([content], { type });
+  const file = new File([blob], name, { type });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: name }); return true; }
+    catch (e) { if (e && e.name === 'AbortError') return false; }
+  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  return true;
+}
+async function exportCSV() {
+  if (!patients.length && !jobs.length) { toast('Nothing to export yet.'); return; }
+  const esc = v => { const s = v == null ? '' : String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+  const head = ['Date seen', 'Where', 'Name', 'URN', 'DOB', 'Note', 'Kept on list', 'Discharged', 'Job', 'Job added', 'Job done'];
+  const rows = [head];
+  [...patients].sort((a, b) => a.createdDate.localeCompare(b.createdDate) || a.createdAt - b.createdAt).forEach(p => {
+    const base = [p.createdDate, AREA[p.area]?.label || p.area, p.name, p.urn, p.dob, p.note, p.carry ? 'Yes' : 'No', p.dischargedDate || ''];
+    if (!p.tasks.length) rows.push([...base, '', '', '']);
+    p.tasks.forEach(t => rows.push([...base, t.text, t.createdDate, t.done ? t.doneDate : '']));
+  });
+  jobs.forEach(t => rows.push(['', 'Other job', '', '', '', '', '', '', t.text, t.createdDate, t.done ? t.doneDate : '']));
+  const ok = await saveFile(`og-notebook-${localISO()}.csv`, rows.map(r => r.map(esc).join(',')).join('\n'), 'text/csv');
+  if (!ok) return;
+  settings.lastExport = localISO(); settings.snoozeUntil = null; persist();
+  justExported = true; closeSettings(); render();
+}
+async function exportJSON() {
+  const data = { app: 'og-notebook', version: 1, exportedAt: new Date().toISOString(), patients, jobs, settings };
+  await saveFile(`og-notebook-backup-${localISO()}.json`, JSON.stringify(data, null, 2), 'application/json');
+}
+function importJSON(e) {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      const d = JSON.parse(rd.result);
+      if (!Array.isArray(d.patients)) throw 0;
+      const have = new Set(patients.map(p => p.id));
+      const add = d.patients.filter(p => !have.has(p.id));
+      patients = patients.concat(add);
+      const haveJ = new Set(jobs.map(j => j.id));
+      jobs = jobs.concat((d.jobs || []).filter(j => !haveJ.has(j.id)));
+      persist(); closeSettings(); render();
+      toast(`Restored ${add.length} patient${add.length !== 1 ? 's' : ''} (${d.patients.length - add.length} already here).`);
+    } catch { toast('That doesn\'t look like a Notebook backup.'); }
+  };
+  rd.readAsText(f);
+}
+function snoozeExport() { settings.snoozeUntil = addDays(localISO(), 2); persist(); render(); }
+function oldPatients() {
+  const today = localISO();
+  return patients.filter(p => {
+    if (p.tasks.some(t => !t.done)) return false;
+    if (p.carry && !p.dischargedDate) return false;
+    const last = [p.createdDate, p.dischargedDate, ...p.tasks.map(t => t.doneDate)].filter(Boolean).sort().pop();
+    return daysBetween(last, today) > 14;
+  });
+}
+function clearOld(ask) {
+  const old = oldPatients();
+  const today = localISO();
+  const oldJobs = jobs.filter(t => t.done && daysBetween(t.doneDate, today) > 14);
+  if (!old.length && !oldJobs.length) { toast('Nothing old enough to clear.'); return; }
+  if (ask && !confirm(`Clear ${old.length} patient${old.length !== 1 ? 's' : ''} seen or discharged over 14 days ago (no open jobs)?\n\nExport first if you want a copy.`)) return;
+  const ids = new Set(old.map(p => p.id));
+  patients = patients.filter(p => !ids.has(p.id));
+  jobs = jobs.filter(t => !oldJobs.includes(t));
+  justExported = false;
+  persist(); closeSettings(); render();
+  toast(`Cleared ${old.length} old patient${old.length !== 1 ? 's' : ''}.`);
+}
+
+// ═══════════════════════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════════════════════
+function openSettings() {
+  document.getElementById('set-reminder').checked = settings.exportReminder !== false;
+  document.getElementById('set-hand').checked = !settings.plainFont;
+  const n = oldPatients().length;
+  document.getElementById('clear-label').innerHTML = `Clear old patients${n ? ' (' + n + ')' : ''}<small>Seen or discharged over 14 days ago, no open jobs</small>`;
+  document.getElementById('s-overlay').classList.add('visible');
+  document.getElementById('s-sheet').classList.add('open');
+}
+function closeSettings() {
+  document.getElementById('s-overlay').classList.remove('visible');
+  document.getElementById('s-sheet').classList.remove('open');
+}
+function applyFont() { document.body.classList.toggle('plain', !!settings.plainFont); }
+
+// ═══════════════════════════════════════════════════════
+// START
+// ═══════════════════════════════════════════════════════
+applyFont();
+render();
+window.addEventListener('resize', snapToLines);
+</script>
+</body>
+</html>

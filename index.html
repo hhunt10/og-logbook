@@ -351,6 +351,9 @@ input[type="hidden"] { display: none; }
       <div class="mode-btn active" id="mode-quick" onclick="setMode('quick')">⚡ Quick (30s)</div>
       <div class="mode-btn" id="mode-full" onclick="setMode('full')">📋 Full RANZCOG</div>
     </div>
+    <div style="text-align:right;margin:8px 20px 0;">
+      <button type="button" id="nb-paste" onclick="pasteFromNotebook()" style="background:none;border:none;color:var(--accent2);font-size:13px;font-weight:500;cursor:pointer;padding:4px 0;font-family:inherit;">📋 Paste from Notebook</button>
+    </div>
 
     <!-- Photo capture -->
     <div class="photo-btn" id="photo-btn" onclick="startCamera()">
@@ -616,6 +619,23 @@ function getSettings() {
 function saveSettings(s) { localStorage.setItem('og_settings', JSON.stringify(s)); }
 function saveSetting(key, val) { const s = getSettings(); s[key] = val; saveSettings(s); }
 function uuid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+// Local (Brisbane) date as YYYY-MM-DD — toISOString() uses UTC, which gave yesterday's date before 10am
+function localISO(d = new Date()) { const p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`; }
+
+// ── Paste from O&G Notebook (reads "URN 1234567 · 2026-11-21 · from O&G Notebook") ──
+async function pasteFromNotebook() {
+  let txt = '';
+  try { txt = await navigator.clipboard.readText(); } catch { alert('Couldn\'t read the clipboard. In the Notebook, tap "Log procedure in Logbook" first.'); return; }
+  const urn = (txt.match(/URN\s*([A-Za-z0-9]+)/) || [])[1];
+  const date = (txt.match(/(\d{4}-\d{2}-\d{2})/) || [])[1];
+  if (!urn && !date) { alert('Nothing from the Notebook on the clipboard. In the Notebook, tap "Log procedure in Logbook" first.'); return; }
+  setMode('full');
+  if (urn) document.getElementById('f-urn').value = urn;
+  if (date) document.getElementById('f-date').value = date;
+  const b = document.getElementById('nb-paste');
+  b.textContent = '✓ Filled from Notebook';
+  setTimeout(() => { b.textContent = '📋 Paste from Notebook'; }, 2500);
+}
 
 // ═══════════════════════════════════════════════════════
 // PIN
@@ -753,7 +773,7 @@ function showTab(name) {
 // RENDER TODAY
 // ═══════════════════════════════════════════════════════
 function renderToday() {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localISO();
   const entries = getEntries().filter(e => e.date === today).sort((a,b) => b.createdAt - a.createdAt);
   const el = document.getElementById('tab-today');
   if (entries.length === 0) {
@@ -925,16 +945,16 @@ function toggleSubmission(id) {
 // ═══════════════════════════════════════════════════════
 function renderSubmissionTimeline() {
   const done = getCompletedSubmissions();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localISO();
   const now = new Date();
 
   // All dates sorted, split into pending (next 90 days only) and completed
   const cutoff = new Date(); cutoff.setDate(cutoff.getDate() + 90);
-  const cutoffStr = cutoff.toISOString().slice(0, 10);
+  const cutoffStr = localISO(cutoff);
   const sorted = [...SUBMISSION_DATES].sort((a, b) => a.due.localeCompare(b.due));
   const pending = sorted.filter(d => !done.includes(d.id) && d.due <= cutoffStr);
   const ago30 = new Date(); ago30.setDate(ago30.getDate() - 30);
-  const ago30Str = ago30.toISOString().slice(0, 10);
+  const ago30Str = localISO(ago30);
   const completed = sorted.filter(d => done.includes(d.id) && d.due >= ago30Str);
 
   if (pending.length === 0 && completed.length === 0) return '';
@@ -992,7 +1012,7 @@ function renderStats() {
   const entries = getEntries();
   const s = getSettings();
   const total = entries.length;
-  const today = entries.filter(e => e.date === new Date().toISOString().slice(0,10)).length;
+  const today = entries.filter(e => e.date === localISO()).length;
   const reviewed = entries.filter(e => e.status === 'reviewed').length;
 
   // Key procedure counts
@@ -1086,6 +1106,7 @@ function openDrawer(editId) {
     const entry = getEntries().find(e => e.id === editId);
     if (!entry) return;
     document.getElementById('drawer-title').textContent = 'Edit Entry';
+    document.getElementById('nb-paste').parentElement.style.display = 'none';
     setMode(entry.mode || 'full');
     document.getElementById('f-date').value = entry.date || '';
     document.getElementById('f-urn').value = entry.urn || '';
@@ -1120,9 +1141,10 @@ function openDrawer(editId) {
     document.getElementById('entry-id').value = editId;
   } else {
     document.getElementById('drawer-title').textContent = 'Log Procedure';
+    document.getElementById('nb-paste').parentElement.style.display = '';
     document.getElementById('entry-form').reset();
     document.getElementById('entry-id').value = '';
-    document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
+    document.getElementById('f-date').value = localISO();
     if (s.defaultHospital) document.getElementById('f-hospital').value = s.defaultHospital;
     if (s.defaultHospitalType) document.getElementById('f-hospital-type').value = s.defaultHospitalType;
     document.getElementById('photo-preview').classList.add('hidden');
@@ -1503,7 +1525,7 @@ function exportCSV() {
   const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `og-logbook-${new Date().toISOString().slice(0,10)}.csv`;
+  a.download = `og-logbook-${localISO()}.csv`;
   a.click();
 }
 
@@ -1512,7 +1534,7 @@ function exportData() {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `og-logbook-${new Date().toISOString().slice(0,10)}.json`;
+  a.download = `og-logbook-${localISO()}.json`;
   a.click();
 }
 
