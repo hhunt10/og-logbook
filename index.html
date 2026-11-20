@@ -1,1 +1,1560 @@
-placeholder
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="O&G Log">
+<meta name="theme-color" content="#f2f6f0">
+<title>O&G Procedure Logbook</title>
+<style>
+:root {
+  --bg: #f2f6f0;
+  --bg2: #ffffff;
+  --bg3: #f7faf6;
+  --card: #ffffff;
+  --card2: #eef3ec;
+  --accent: #4a7a57;
+  --accent2: #3a6347;
+  --accent-bg: rgba(74,122,87,0.1);
+  --green: #3a8050;
+  --green-bg: rgba(58,128,80,0.1);
+  --amber: #8a6e28;
+  --amber-bg: rgba(138,110,40,0.12);
+  --red: #b04040;
+  --red-bg: rgba(176,64,64,0.1);
+  --text: #1e2d22;
+  --text2: #5a7060;
+  --text3: #8c9e8f;
+  --border: rgba(0,0,0,0.09);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 6px rgba(0,0,0,0.07);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif; overflow: hidden; }
+.screen { position: fixed; inset: 0; display: flex; flex-direction: column; overflow: hidden; transition: opacity 0.2s, transform 0.2s; }
+.screen.hidden { opacity: 0; pointer-events: none; transform: translateY(8px); }
+
+/* ── PIN SCREEN ── */
+#pin-screen { background: var(--bg); justify-content: center; align-items: center; gap: 32px; padding: 40px 24px; }
+.pin-logo { text-align: center; }
+.pin-logo h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+.pin-logo h1 span { color: var(--accent2); }
+.pin-logo p { color: var(--text2); font-size: 14px; margin-top: 6px; }
+.pin-dots { display: flex; gap: 16px; justify-content: center; }
+.pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--text3); background: transparent; transition: background 0.15s, border-color 0.15s; }
+.pin-dot.filled { background: var(--accent2); border-color: var(--accent2); }
+.pin-dot.error { background: var(--red); border-color: var(--red); }
+.numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; max-width: 280px; }
+.numpad-btn { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; font-size: 22px; font-weight: 600; color: var(--text); cursor: pointer; transition: background 0.1s, transform 0.1s; display: flex; align-items: center; justify-content: center; }
+.numpad-btn:active { background: var(--card2); transform: scale(0.95); }
+.numpad-btn.del { font-size: 18px; color: var(--text2); }
+.pin-hint { font-size: 13px; color: var(--text3); text-align: center; }
+.pin-setup-label { font-size: 15px; color: var(--text2); text-align: center; }
+
+/* ── MAIN APP ── */
+#main-screen { background: var(--bg); }
+.topbar { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 12px 20px 12px; display: flex; align-items: center; justify-content: space-between; padding-top: max(12px, env(safe-area-inset-top)); flex-shrink: 0; }
+.topbar-title { font-size: 17px; font-weight: 700; }
+.topbar-date { font-size: 13px; color: var(--text2); margin-top: 2px; }
+.icon-btn { background: none; border: none; color: var(--text2); cursor: pointer; padding: 6px; border-radius: 8px; display: flex; align-items: center; font-size: 20px; transition: color 0.15s; }
+.icon-btn:active { color: var(--accent2); }
+.tab-bar { display: flex; background: var(--bg2); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.tab { flex: 1; padding: 10px 4px; text-align: center; font-size: 12px; font-weight: 500; color: var(--text3); cursor: pointer; transition: color 0.15s; border-bottom: 2px solid transparent; }
+.tab.active { color: var(--accent2); border-bottom-color: var(--accent2); }
+.tab-content { flex: 1; overflow-y: auto; padding-bottom: max(80px, calc(env(safe-area-inset-bottom) + 80px)); }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* ── FAB ── */
+.fab { position: fixed; bottom: max(28px, calc(env(safe-area-inset-bottom) + 28px)); right: 24px; width: 58px; height: 58px; border-radius: 50%; background: var(--accent); border: none; color: white; font-size: 28px; cursor: pointer; box-shadow: 0 4px 16px rgba(74,122,87,0.4); display: flex; align-items: center; justify-content: center; transition: transform 0.15s, box-shadow 0.15s; z-index: 100; }
+.fab:active { transform: scale(0.93); }
+
+/* ── ENTRY LIST ── */
+.section-header { padding: 16px 20px 8px; font-size: 12px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; }
+.entry-card { margin: 0 16px 10px; background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; cursor: pointer; transition: background 0.15s; }
+.entry-card:active { background: var(--card2); }
+.entry-main { padding: 14px 16px; display: flex; align-items: flex-start; gap: 12px; }
+.entry-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.entry-body { flex: 1; min-width: 0; }
+.entry-proc { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.entry-meta { font-size: 12px; color: var(--text2); margin-top: 3px; display: flex; gap: 8px; flex-wrap: wrap; }
+.badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+.badge-quick { background: var(--amber-bg); color: var(--amber); }
+.badge-full { background: var(--green-bg); color: var(--green); }
+.badge-reviewed { background: var(--accent-bg); color: var(--accent2); }
+.badge-sup1 { background: rgba(176,64,64,0.1); color: #9b3030; }
+.badge-sup2 { background: rgba(138,110,40,0.12); color: #7a5e1a; }
+.badge-sup3 { background: rgba(58,128,80,0.1); color: #2d6b42; }
+.entry-time { font-size: 12px; color: var(--text3); flex-shrink: 0; }
+.empty-state { text-align: center; padding: 60px 32px; color: var(--text3); }
+.empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+.empty-state h3 { font-size: 17px; color: var(--text2); margin-bottom: 8px; }
+.empty-state p { font-size: 14px; line-height: 1.5; }
+
+/* ── STATS ── */
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 16px; }
+.stat-card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 16px; }
+.stat-number { font-size: 32px; font-weight: 700; color: var(--accent2); }
+.stat-label { font-size: 12px; color: var(--text2); margin-top: 4px; }
+.stat-card.wide { grid-column: span 2; }
+.proc-stat-row { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 10px; }
+.proc-stat-row:last-child { border-bottom: none; }
+.proc-stat-name { flex: 1; font-size: 14px; }
+.proc-stat-bar { height: 6px; border-radius: 3px; background: var(--accent); flex-shrink: 0; min-width: 4px; }
+.proc-stat-count { font-size: 13px; font-weight: 600; color: var(--accent2); min-width: 24px; text-align: right; }
+
+/* ── DRAWER (Add/Edit) ── */
+#drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+#drawer-overlay.visible { opacity: 1; pointer-events: all; }
+#drawer { position: fixed; left: 0; right: 0; bottom: 0; background: var(--bg2); border-radius: 20px 20px 0 0; box-shadow: 0 -4px 24px rgba(0,0,0,0.1); z-index: 201; transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1); max-height: 94vh; display: flex; flex-direction: column; }
+#drawer.open { transform: translateY(0); }
+.drawer-handle { width: 36px; height: 4px; border-radius: 2px; background: rgba(0,0,0,0.12); margin: 12px auto 0; flex-shrink: 0; }
+.drawer-header { padding: 16px 20px 12px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.drawer-title { font-size: 18px; font-weight: 700; }
+.drawer-body { flex: 1; overflow-y: auto; padding: 0 0 max(24px, env(safe-area-inset-bottom)); }
+.mode-toggle { display: flex; background: var(--bg3); border-radius: 10px; padding: 3px; margin: 16px 20px 0; }
+.mode-btn { flex: 1; padding: 8px; text-align: center; font-size: 13px; font-weight: 500; color: var(--text2); border-radius: 8px; cursor: pointer; transition: background 0.15s, color 0.15s; }
+.mode-btn.active { background: var(--card2); color: var(--text); }
+.photo-btn { margin: 16px 20px 0; padding: 14px; background: var(--accent-bg); border: 1.5px dashed var(--accent); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; gap: 10px; color: var(--accent2); font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.15s; }
+.photo-btn:active { background: rgba(74,122,87,0.18); }
+.photo-preview { margin: 12px 20px 0; border-radius: var(--radius); overflow: hidden; position: relative; }
+.photo-preview img { width: 100%; display: block; max-height: 160px; object-fit: cover; }
+.photo-remove { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.6); border: none; color: white; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+.form-section { padding: 16px 20px 0; }
+.form-section-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+.form-group { margin-bottom: 14px; }
+.form-label { font-size: 13px; color: var(--text2); margin-bottom: 6px; display: block; }
+.form-label span { color: var(--red); margin-left: 2px; }
+.form-input, .form-select, .form-textarea { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 11px 14px; font-size: 15px; color: var(--text); font-family: inherit; appearance: none; -webkit-appearance: none; transition: border-color 0.15s; }
+.form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--accent); }
+.form-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%235a7060' d='M6 8L0 0h12z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+.form-textarea { resize: none; min-height: 80px; line-height: 1.5; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.form-actions { padding: 16px 20px; display: flex; gap: 10px; border-top: 1px solid var(--border); flex-shrink: 0; }
+.btn { flex: 1; padding: 14px; border-radius: var(--radius); border: none; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.15s, transform 0.1s; }
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--accent); color: white; }
+.btn-secondary { background: var(--card2); color: var(--text2); flex: 0.5; }
+.ocr-status { font-size: 12px; color: var(--accent2); margin: 8px 20px 0; display: none; }
+.ocr-status.visible { display: block; }
+input[type="hidden"] { display: none; }
+
+/* ── DETAIL DRAWER ── */
+.detail-section { padding: 16px 20px 0; }
+.detail-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 12px; }
+.detail-row:last-child { border-bottom: none; }
+.detail-key { font-size: 13px; color: var(--text2); flex-shrink: 0; }
+.detail-val { font-size: 14px; text-align: right; }
+.detail-actions { display: flex; gap: 10px; padding: 16px 20px; border-top: 1px solid var(--border); }
+.btn-danger { background: var(--red-bg); color: var(--red); border: 1px solid rgba(239,68,68,0.3); flex: 0.5; }
+.btn-reviewed { background: var(--accent-bg); color: var(--accent2); border: 1px solid rgba(74,122,87,0.3); }
+
+/* ── SETTINGS ── */
+.settings-list { padding: 16px; }
+.settings-item { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 10px; overflow: hidden; }
+.settings-btn { width: 100%; padding: 16px; display: flex; align-items: center; gap: 14px; background: none; border: none; color: var(--text); font-family: inherit; font-size: 15px; cursor: pointer; text-align: left; }
+.settings-btn:active { background: var(--card2); }
+.settings-icon { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.settings-info { flex: 1; }
+.settings-label { font-weight: 500; }
+.settings-desc { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.settings-arrow { color: var(--text3); font-size: 18px; }
+.settings-section-title { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; padding: 8px 4px 6px; }
+
+/* camera canvas hidden — only used for image resizing before OCR */
+
+/* ── CHECKLIST ── */
+.checklist-group { margin: 0 16px 4px; }
+.checklist-group-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; padding: 16px 0 6px; }
+.checklist-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; background: var(--card); border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: 6px; cursor: pointer; transition: background 0.15s; box-shadow: var(--shadow); }
+.checklist-item:active { background: var(--card2); }
+.checklist-item.checked { background: var(--accent-bg); border-color: rgba(74,122,87,0.2); }
+.check-box { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background 0.15s, border-color 0.15s; }
+.checklist-item.checked .check-box { background: var(--accent); border-color: var(--accent); }
+.check-tick { color: white; font-size: 13px; font-weight: 700; display: none; }
+.checklist-item.checked .check-tick { display: block; }
+.check-label { font-size: 14px; flex: 1; line-height: 1.3; }
+.checklist-item.checked .check-label { color: var(--text2); text-decoration: line-through; }
+.checklist-progress { margin: 8px 16px 0; }
+.checklist-progress-bar-bg { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.checklist-progress-bar { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.3s; }
+.checklist-progress-label { font-size: 12px; color: var(--text2); margin-top: 5px; }
+</style>
+</head>
+<body>
+
+<!-- PIN SCREEN -->
+<div id="pin-screen" class="screen hidden" style="display:none">
+  <div class="pin-logo">
+    <h1>O&amp;G <span>Logbook</span></h1>
+    <p id="pin-subtitle">Enter your PIN</p>
+  </div>
+  <div class="pin-dots" id="pin-dots">
+    <div class="pin-dot" id="pd0"></div>
+    <div class="pin-dot" id="pd1"></div>
+    <div class="pin-dot" id="pd2"></div>
+    <div class="pin-dot" id="pd3"></div>
+  </div>
+  <div class="numpad">
+    <button class="numpad-btn" onclick="pinInput('1')">1</button>
+    <button class="numpad-btn" onclick="pinInput('2')">2</button>
+    <button class="numpad-btn" onclick="pinInput('3')">3</button>
+    <button class="numpad-btn" onclick="pinInput('4')">4</button>
+    <button class="numpad-btn" onclick="pinInput('5')">5</button>
+    <button class="numpad-btn" onclick="pinInput('6')">6</button>
+    <button class="numpad-btn" onclick="pinInput('7')">7</button>
+    <button class="numpad-btn" onclick="pinInput('8')">8</button>
+    <button class="numpad-btn" onclick="pinInput('9')">9</button>
+    <button class="numpad-btn" style="visibility:hidden"></button>
+    <button class="numpad-btn" onclick="pinInput('0')">0</button>
+    <button class="numpad-btn del" onclick="pinDelete()">⌫</button>
+  </div>
+  <p class="pin-hint" id="pin-hint"></p>
+</div>
+
+<!-- MAIN APP -->
+<div id="main-screen" class="screen">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">O&amp;G Logbook</div>
+      <div class="topbar-date" id="topbar-date"></div>
+    </div>
+    <button class="icon-btn" onclick="showTab('settings')" title="Settings">⚙️</button>
+  </div>
+  <div class="tab-bar">
+    <div class="tab active" data-tab="today" onclick="showTab('today')">Today</div>
+    <div class="tab" data-tab="all" onclick="showTab('all')">All Entries</div>
+    <div class="tab" data-tab="stats" onclick="showTab('stats')">Stats</div>
+    <div class="tab" data-tab="settings" onclick="showTab('settings')">Settings</div>
+  </div>
+  <div class="tab-content">
+    <!-- TODAY -->
+    <div class="tab-pane active" id="tab-today"></div>
+    <!-- ALL -->
+    <div class="tab-pane" id="tab-all">
+      <div style="padding:14px 20px 0;">
+        <input class="form-input" type="search" placeholder="Search procedures..." id="search-input" oninput="renderAll()" style="margin-bottom:4px;">
+      </div>
+    </div>
+    <!-- STATS -->
+    <div class="tab-pane" id="tab-stats"></div>
+    <!-- SETTINGS -->
+    <div class="tab-pane" id="tab-settings">
+      <div class="settings-list">
+        <div class="settings-section-title">Account</div>
+        <div class="settings-item">
+          <div style="padding:16px;">
+            <label class="form-label">My Name (Registrar)</label>
+            <input class="form-input" type="text" id="setting-name" placeholder="Dr Heather..." oninput="saveSetting('registrarName',this.value)" value="Dr Heather Lawrence">
+          </div>
+        </div>
+        <div class="settings-item">
+          <div style="padding:16px;">
+            <label class="form-label">Default Hospital</label>
+            <input class="form-input" type="text" id="setting-hospital" placeholder="Hospital name..." oninput="saveSetting('defaultHospital',this.value)" style="margin-bottom:10px;">
+            <label class="form-label">Default Hospital Type</label>
+            <select class="form-select" id="setting-hospital-type" onchange="saveSetting('defaultHospitalType',this.value)">
+              <option value="">Select...</option>
+              <option value="public-tertiary">Public tertiary</option>
+              <option value="public-secondary">Public secondary</option>
+              <option value="private">Private</option>
+            </select>
+          </div>
+        </div>
+        <div class="settings-section-title" style="margin-top:16px;">Training</div>
+        <div class="settings-item">
+          <div style="padding:16px;">
+            <label class="form-label">Training Year</label>
+            <select class="form-select" id="setting-training-year" onchange="saveSetting('trainingYear',this.value)">
+              <option value="">Not set (show full checklist)</option>
+              <option value="1">Year 1 — 0–52 BTIT</option>
+              <option value="2">Year 2 — 52–104 BTIT</option>
+              <option value="3">Year 3 — 104–156 BTIT</option>
+              <option value="4">Year 4 — 156–208 BTIT</option>
+            </select>
+          </div>
+        </div>
+        <div class="settings-section-title" style="margin-top:16px;">Pre-logbook Procedure Counts</div>
+        <div class="settings-item">
+          <div style="padding:16px;">
+            <p style="font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.5;">Enter procedures you completed before starting this logbook — they'll be added to your totals on the Stats page.</p>
+            <div class="form-row" style="margin-bottom:10px;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Caesarean sections</label>
+                <input class="form-input" type="number" min="0" id="setting-pre-cs" placeholder="0" inputmode="numeric" oninput="saveSetting('preCs',+this.value||0)">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Vacuum / Ventouse</label>
+                <input class="form-input" type="number" min="0" id="setting-pre-vacuum" placeholder="0" inputmode="numeric" oninput="saveSetting('preVacuum',+this.value||0)">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Forceps</label>
+                <input class="form-input" type="number" min="0" id="setting-pre-forceps" placeholder="0" inputmode="numeric" oninput="saveSetting('preForceps',+this.value||0)">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Suction D&amp;C / ERPC</label>
+                <input class="form-input" type="number" min="0" id="setting-pre-dc" placeholder="0" inputmode="numeric" oninput="saveSetting('preDc',+this.value||0)">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="settings-section-title" style="margin-top:16px;">Data</div>
+        <div class="settings-item">
+          <button class="settings-btn" onclick="exportCSV()">
+            <div class="settings-icon" style="background:var(--green-bg);">📊</div>
+            <div class="settings-info"><div class="settings-label">Export as CSV</div><div class="settings-desc">Download spreadsheet — open in Excel or Numbers</div></div>
+            <div class="settings-arrow">›</div>
+          </button>
+        </div>
+        <div class="settings-item">
+          <button class="settings-btn" onclick="exportData()">
+            <div class="settings-icon" style="background:var(--green-bg);">💾</div>
+            <div class="settings-info"><div class="settings-label">Backup (JSON)</div><div class="settings-desc">Full backup — restore to any device</div></div>
+            <div class="settings-arrow">›</div>
+          </button>
+        </div>
+        <div class="settings-item">
+          <button class="settings-btn" onclick="document.getElementById('import-file').click()">
+            <div class="settings-icon" style="background:var(--accent-bg);">📂</div>
+            <div class="settings-info"><div class="settings-label">Restore Backup</div><div class="settings-desc">Load JSON backup file</div></div>
+            <div class="settings-arrow">›</div>
+          </button>
+          <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+        </div>
+        <div class="settings-section-title" style="margin-top:16px;">Security</div>
+        <div class="settings-item">
+          <button class="settings-btn" onclick="changePIN()">
+            <div class="settings-icon" style="background:var(--amber-bg);">🔐</div>
+            <div class="settings-info"><div class="settings-label">Change PIN</div><div class="settings-desc">Update your 4-digit PIN</div></div>
+            <div class="settings-arrow">›</div>
+          </button>
+        </div>
+        <div class="settings-item">
+          <button class="settings-btn" onclick="lockApp()">
+            <div class="settings-icon" style="background:var(--red-bg);">🔒</div>
+            <div class="settings-info"><div class="settings-label">Lock App</div><div class="settings-desc">Return to PIN screen</div></div>
+            <div class="settings-arrow">›</div>
+          </button>
+        </div>
+        <div style="padding:24px 4px; font-size:12px; color:var(--text3); line-height:1.6;">
+          📱 <strong style="color:var(--text2);">Add to Home Screen:</strong> On iOS, tap Share → Add to Home Screen. On Android, tap ⋮ → Add to Home Screen.<br><br>
+          🔐 <strong style="color:var(--text2);">Face ID:</strong> iOS Screen Time can lock individual apps. After adding to Home Screen, use Screen Time → App Limits → add this app.<br><br>
+          ☁️ <strong style="color:var(--text2);">Cross-device sync:</strong> Export → save JSON to Google Drive → open on other device → Import.
+        </div>
+      </div>
+    </div>
+  </div>
+  <button class="fab" onclick="openDrawer(null)" title="Log Procedure">+</button>
+</div>
+
+<!-- ADD/EDIT DRAWER -->
+<div id="drawer-overlay" onclick="closeDrawer()"></div>
+<div id="drawer">
+  <div class="drawer-handle"></div>
+  <div class="drawer-header">
+    <div class="drawer-title" id="drawer-title">Log Procedure</div>
+    <button class="icon-btn" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body" id="drawer-body">
+    <!-- Mode toggle -->
+    <div class="mode-toggle">
+      <div class="mode-btn active" id="mode-quick" onclick="setMode('quick')">⚡ Quick (30s)</div>
+      <div class="mode-btn" id="mode-full" onclick="setMode('full')">📋 Full RANZCOG</div>
+    </div>
+
+    <!-- Photo capture -->
+    <div class="photo-btn" id="photo-btn" onclick="startCamera()">
+      📸 Capture Patient Label (auto-fills fields)
+    </div>
+    <div class="photo-preview hidden" id="photo-preview">
+      <img id="photo-img" src="" alt="Patient label">
+      <button class="photo-remove" onclick="removePhoto()">✕</button>
+    </div>
+    <div class="ocr-status" id="ocr-status">Reading label...</div>
+
+    <form id="entry-form" onsubmit="saveEntry(event)">
+      <input type="hidden" id="entry-id">
+
+      <!-- SECTION: Patient (shown in full mode) -->
+      <div class="form-section full-only">
+        <div class="form-section-title">Patient Details</div>
+        <div class="form-group">
+          <label class="form-label">URN</label>
+          <input class="form-input" type="text" id="f-urn" placeholder="12345678" inputmode="numeric">
+        </div>
+      </div>
+
+      <!-- SECTION: Procedure (always shown) -->
+      <div class="form-section">
+        <div class="form-section-title">Procedure <span style="color:var(--red)">*</span></div>
+        <div class="form-group">
+          <label class="form-label">Date <span>*</span></label>
+          <input class="form-input" type="date" id="f-date" required>
+        </div>
+        <!-- Quick suggestions -->
+        <div id="proc-suggestions" style="display:none;margin-bottom:12px;">
+          <div style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.7px;margin-bottom:7px;">Often Used</div>
+          <div id="proc-suggestions-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category <span>*</span></label>
+          <select class="form-select" id="f-category" onchange="updateProcSubcats()" required>
+            <option value="">Select category...</option>
+          </select>
+        </div>
+        <div class="form-group" id="f-subcat-group" style="display:none;">
+          <label class="form-label">Sub-type <span>*</span></label>
+          <select class="form-select" id="f-subcat" onchange="updateProcList()">
+            <option value="">Select sub-type...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Procedure <span>*</span></label>
+          <select class="form-select" id="f-procedure" required>
+            <option value="">Select procedure...</option>
+          </select>
+        </div>
+        <div class="form-group full-only">
+          <label class="form-label">Setting</label>
+          <select class="form-select" id="f-setting">
+            <option value="">Select...</option>
+            <option value="elective">Elective</option>
+            <option value="urgent">Urgent</option>
+            <option value="emergency">Emergency</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- SECTION: Supervision (always shown) -->
+      <div class="form-section">
+        <div class="form-section-title">Supervision <span style="color:var(--red)">*</span></div>
+        <div class="form-group">
+          <label class="form-label">Level <span>*</span></label>
+          <select class="form-select" id="f-supervision" required>
+            <option value="">Select level...</option>
+            <option value="direct-scrubbed">Direct supervision — scrubbed</option>
+            <option value="direct-unscrubbed">Direct supervision — unscrubbed in OT</option>
+            <option value="indirect-onsite">Indirect supervision — onsite, immediately available</option>
+            <option value="indirect-offsite">Indirect supervision — offsite</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Consultant/Supervisor</label>
+          <input class="form-input" type="text" id="f-supervisor" placeholder="Dr..." autocapitalize="words">
+        </div>
+      </div>
+
+      <!-- SECTION: Clinical (full mode) -->
+      <div class="form-section full-only">
+        <div class="form-section-title">Clinical Details</div>
+        <div class="form-group">
+          <label class="form-label">Diagnosis / Indication</label>
+          <input class="form-input" type="text" id="f-diagnosis" placeholder="e.g. Failure to progress, DCDA twins...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Operative Findings</label>
+          <textarea class="form-textarea" id="f-findings" placeholder="Intraoperative findings..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Challenges / Complications</label>
+          <textarea class="form-textarea" id="f-complications" placeholder="e.g. Dense adhesions, PPH, shoulder dystocia..."></textarea>
+        </div>
+      </div>
+
+      <!-- SECTION: Hospital (full mode) -->
+      <div class="form-section full-only">
+        <div class="form-section-title">Hospital</div>
+        <div class="form-group">
+          <label class="form-label">Hospital Name</label>
+          <input class="form-input" type="text" id="f-hospital" placeholder="Hospital name...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hospital Type</label>
+          <select class="form-select" id="f-hospital-type">
+            <option value="">Select...</option>
+            <option value="public-tertiary">Public tertiary</option>
+            <option value="public-secondary">Public secondary</option>
+            <option value="private">Private</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- SECTION: Learning (full mode) -->
+      <div class="form-section full-only">
+        <div class="form-section-title">Reflection</div>
+        <div class="form-group">
+          <label class="form-label">Learning Points</label>
+          <textarea class="form-textarea" id="f-learning" placeholder="Key learning points from this case..."></textarea>
+        </div>
+      </div>
+    </form>
+
+    <div class="form-actions">
+      <button class="btn btn-secondary" type="button" onclick="closeDrawer()">Cancel</button>
+      <button class="btn btn-primary" type="button" onclick="saveEntry()">Save Entry</button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL DRAWER -->
+<div id="detail-overlay" onclick="closeDetail()" style="position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:200;opacity:0;pointer-events:none;transition:opacity 0.3s;"></div>
+<div id="detail-drawer" style="position:fixed;left:0;right:0;bottom:0;background:var(--bg2);border-radius:20px 20px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,0.1);z-index:201;transform:translateY(100%);transition:transform 0.35s cubic-bezier(0.32,0.72,0,1);max-height:92vh;display:flex;flex-direction:column;">
+  <div class="drawer-handle"></div>
+  <div class="drawer-header">
+    <div>
+      <div class="drawer-title" id="detail-title">Entry Detail</div>
+      <div style="font-size:13px;color:var(--text2);margin-top:2px;" id="detail-date"></div>
+    </div>
+    <button class="icon-btn" onclick="closeDetail()">✕</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding-bottom:max(16px,env(safe-area-inset-bottom));" id="detail-body"></div>
+  <div class="detail-actions">
+    <button class="btn btn-danger" onclick="deleteCurrentEntry()">Delete</button>
+    <button class="btn btn-reviewed" onclick="markReviewed()" id="btn-reviewed">Mark Reviewed in RANZCOG</button>
+    <button class="btn btn-primary" onclick="editCurrentEntry()" style="flex:0.5;">Edit</button>
+  </div>
+</div>
+
+<!-- Native camera: uses file input so it works on iOS local files without HTTPS -->
+<canvas id="camera-canvas" style="display:none;"></canvas>
+<input type="file" id="native-camera-input" accept="image/*" capture="environment" style="display:none;" onchange="handleNativePhoto(event)">
+
+<script>
+// ═══════════════════════════════════════════════════════
+// RANZCOG DATA
+// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
+// PROCEDURE TREE (RANZCOG classification)
+// ═══════════════════════════════════════════════════════
+const PROC_TREE = [
+  { id: 'obs-svb', icon: '👶', label: 'Obstetrics — Spontaneous Vaginal Birth',
+    procs: ['Vaginal birth — unassisted singleton', 'Vaginal birth — assisted breech', 'Vaginal birth — multiple'] },
+  { id: 'obs-ivb', icon: '🧲', label: 'Obstetrics — Instrumental Vaginal Birth',
+    subs: [
+      { label: 'Vacuum / Ventouse', procs: ['Low/outlet vacuum', 'Midcavity vacuum — OA position', 'Midcavity vacuum — with rotation from OT/OP'] },
+      { label: 'Forceps', procs: ['Low/outlet forceps', 'Midcavity forceps — OA position', 'Midcavity forceps — with rotation from OT/OP'] },
+    ]},
+  { id: 'obs-cs', icon: '🏥', label: 'Obstetrics — Caesarean Section',
+    subs: [
+      { label: 'Basic', procs: ['CS — without listed complexity (basic)', 'CS — with adnexal procedure'] },
+      { label: 'Complex', procs: ['CS — at full dilatation', 'CS — placental abruption', 'CS — abnormal presentation (breech or transverse)', 'CS — multiple pregnancy', 'CS — BMI ≥50', 'CS — ≥4th caesarean', 'CS — classical incision', 'CS — placenta praevia', 'CS — placenta accreta spectrum', 'CS — uterine rupture'] },
+    ]},
+  { id: 'obs-antenatal', icon: '🤰', label: 'Obstetrics — Antenatal Procedures',
+    procs: ['Chorionic villous sampling (CVS)', 'Amniocentesis', 'External cephalic version (ECV)', 'Insertion of cervical cerclage'] },
+  { id: 'obs-intrapartum', icon: '🤰', label: 'Obstetrics — Intrapartum Procedures',
+    procs: ['Fetal scalp blood sampling', 'Manual removal of placenta', 'Shoulder dystocia management'] },
+  { id: 'obs-perineal', icon: '🩹', label: 'Obstetrics — Perineal Repair',
+    procs: ['Uncomplicated episiotomy and repair of 2nd degree tear', 'Repair of 3rd degree tear (OASI)', 'Repair of 4th degree tear', 'Repair of 1st degree / labial tear'] },
+  { id: 'obs-pph', icon: '🩸', label: 'Obstetrics — PPH Management',
+    procs: ['PPH ≥1000ml — medical management', 'PPH — Bakri balloon / intrauterine balloon', 'PPH — B-Lynch / compression suture', 'PPH — hysterectomy', 'PPH — internal iliac artery ligation'] },
+  { id: 'gynae-lap', icon: '🔬', label: 'Gynaecology — Laparoscopy',
+    subs: [
+      { label: 'Level 1 — Diagnostic', procs: ['Laparoscopy L1 — diagnostic laparoscopy'] },
+      { label: 'Level 2a — Simple', procs: ['Laparoscopy L2a — tubal ligation', 'Laparoscopy L2a — simple cyst aspiration', 'Laparoscopy L2a — simple adhesiolysis', 'Laparoscopy L2a — ablation APS I-II endometriosis'] },
+      { label: 'Level 2b — Ectopic / Salpingectomy', procs: ['Laparoscopy L2b — salpingotomy/salpingectomy for ectopic pregnancy'] },
+      { label: 'Level 3 — Ovarian / LAVH', procs: ['Laparoscopy L3a — ovarian cystectomy (normal anatomy)', 'Laparoscopy L3a — oophorectomy (normal anatomy)', 'Laparoscopy L3b — LAVH'] },
+      { label: 'Level 4 — Complex Endometriosis', procs: ['Laparoscopy L4 — excision APS III endometriosis'] },
+      { label: 'Level 5 — TLH / Major', procs: ['Laparoscopy L5 — total laparoscopic hysterectomy (TLH)', 'Laparoscopy L5 — laparoscopic Burch colposuspension', 'Laparoscopy L5 — laparoscopic sacrocolpopexy', 'Laparoscopy L5 — laparoscopic myomectomy'] },
+      { label: 'Level 6 — Advanced', procs: ['Laparoscopy L6 — pelvic floor repair', 'Laparoscopy L6 — excision APS IV endometriosis', 'Laparoscopy L6 — oophorectomy residual ovary (distorted anatomy)', 'Laparoscopy L6 — lymph node dissection', 'Laparoscopy L6 — radical hysterectomy'] },
+    ]},
+  { id: 'gynae-hys', icon: '🔭', label: 'Gynaecology — Hysteroscopy',
+    procs: ['Hysteroscopy — diagnostic +/- D&C', 'Hysteroscopy — polypectomy', 'Hysteroscopy — submucous fibroid resection', 'Hysteroscopy — uterine abnormality (septa)', 'Hysteroscopy — endometrial ablation', 'Hysteroscopy — other (IUCD retrieval, adhesiolysis)'] },
+  { id: 'gynae-laparotomy', icon: '🏥', label: 'Gynaecology — Laparotomy',
+    subs: [
+      { label: 'Minor', procs: ['Laparotomy — abdominal ovarian cystectomy', 'Laparotomy — abdominal salpingectomy +/- oophorectomy', 'Laparotomy — hysterotomy', 'Laparotomy — abdominal myomectomy'] },
+      { label: 'Major', procs: ['Laparotomy — abdominal hysterectomy', 'Laparotomy — retroperitoneal node sampling', 'Laparotomy — vault supportive procedure (sacrocolpopexy)', 'Laparotomy — pelvic sidewall dissection'] },
+    ]},
+  { id: 'gynae-vaginal', icon: '🏥', label: 'Gynaecology — Vaginal Surgery',
+    subs: [
+      { label: 'Minor', procs: ['Vaginal surgery — anterior repair', 'Vaginal surgery — posterior repair (+/- levatoplasty)', 'Vaginal surgery — anterior and posterior repair (without hysterectomy)'] },
+      { label: 'Major', procs: ["Vaginal surgery — vaginal hysterectomy (without repair)", 'Vaginal surgery — vaginal hysterectomy and repair', 'Vaginal surgery — sacrospinous colpopexy', 'Vaginal surgery — colpocleisis'] },
+    ]},
+  { id: 'gynae-continence', icon: '🏥', label: 'Gynaecology — Continence Surgery',
+    procs: ['Continence — transobturator tape (TOT)', 'Continence — transvaginal tape (TVT)', 'Continence — retropubic suspension / open colposuspension', 'Continence — neuromodulation wire insertion', 'Continence — sling/tape removal', 'Continence — Botox pelvic floor', 'Continence — fistula repair'] },
+  { id: 'gynae-cervical', icon: '📋', label: 'Gynaecology — Cervical Management',
+    procs: ['Colposcopy', 'LLETZ (large loop excision)', 'Cervical cautery / laser', 'Cone biopsy'] },
+  { id: 'gynae-perineal', icon: '🩹', label: 'Gynaecology — Perineal Surgery',
+    procs: ["Perineal (Bartholin's) abscess marsupialisation or drainage", 'Vulval biopsy or excision', "Perineoplasty (Fenton's) or perineorrhaphy", "Minor perineal and vulval surgery (e.g. Bartholin's cyst marsupialisation, excision vulval cyst)"] },
+  { id: 'gynae-other', icon: '📋', label: 'Gynaecology — Other Procedures',
+    procs: ['Endometrial sampling (outpatient)', 'Suction D&C / vacuum aspiration (ERPC)', 'Dilatation and curettage (D&C, no hysteroscopy)', 'IUCD insertion', 'IUCD removal', 'Cystoscopy'] },
+  { id: 'gynae-oncology', icon: '🔬', label: 'Gynaecology — Oncology',
+    procs: ['EUA for cervical cancer', 'Simple vulvectomy', 'Radical vulvectomy', 'Lymph node dissection (inguinal, non-laparoscopic)', 'Debulking of gynaecological cancer'] },
+];
+
+// Legacy compat: derive a flat map for display icons
+const CATEGORY_ICONS_LEGACY = {};
+PROC_TREE.forEach(c => { CATEGORY_ICONS_LEGACY[c.id] = c.icon; });
+
+// ─── old PROCEDURES stub (kept only for grep compat) ───
+const PROCEDURES = {};
+PROC_TREE.forEach(c => {
+  const all = c.procs ? [...c.procs] : (c.subs || []).flatMap(s => s.procs);
+  PROCEDURES[c.id] = all;
+});
+
+// Partial stub for old 'obs-other' and 'gynae-open'/'gynae-minor' keys
+PROCEDURES['obs-other'] = PROCEDURES['obs-antenatal'] || [];
+PROCEDURES['gynae-open'] = PROCEDURES['gynae-vaginal'] || [];
+PROCEDURES['gynae-minor'] = PROCEDURES['gynae-cervical'] || [];
+PROCEDURES['other'] = ['Other (specify in notes)'];
+
+// Icon lookup (derived from PROC_TREE)
+const CATEGORY_ICONS = CATEGORY_ICONS_LEGACY;
+
+const SUPERVISION_COLORS = {
+  'direct-scrubbed':   'sup2',
+  'direct-unscrubbed': 'sup2',
+  'indirect-onsite':   'sup3',
+  'indirect-offsite':  'sup3',
+};
+const SUPERVISION_SHORT = {
+  'direct-scrubbed':   'Direct — scrubbed',
+  'direct-unscrubbed': 'Direct — unscrubbed',
+  'indirect-onsite':   'Indirect — onsite',
+  'indirect-offsite':  'Indirect — offsite',
+};
+
+// ═══════════════════════════════════════════════════════
+// STORAGE (localStorage — data stays on this device)
+// ═══════════════════════════════════════════════════════
+function getEntries() {
+  try { return JSON.parse(localStorage.getItem('og_entries') || '[]'); } catch { return []; }
+}
+function saveEntries(entries) { localStorage.setItem('og_entries', JSON.stringify(entries)); }
+function getSettings() {
+  try { return JSON.parse(localStorage.getItem('og_settings') || '{}'); } catch { return {}; }
+}
+function saveSettings(s) { localStorage.setItem('og_settings', JSON.stringify(s)); }
+function saveSetting(key, val) { const s = getSettings(); s[key] = val; saveSettings(s); }
+function uuid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+
+// ═══════════════════════════════════════════════════════
+// PIN
+// ═══════════════════════════════════════════════════════
+let pinBuffer = '';
+let pinSetupStep = 0;
+let pinFirst = '';
+
+async function hashPIN(pin) {
+  const enc = new TextEncoder().encode(pin + 'og_logbook_salt_v1');
+  const hash = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+function updateDots(err) {
+  for (let i = 0; i < 4; i++) {
+    const d = document.getElementById('pd' + i);
+    d.classList.toggle('filled', i < pinBuffer.length && !err);
+    d.classList.toggle('error', err);
+  }
+}
+
+function pinInput(digit) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += digit;
+  updateDots(false);
+  if (pinBuffer.length === 4) setTimeout(handlePINComplete, 100);
+}
+
+function pinDelete() {
+  if (pinBuffer.length > 0) pinBuffer = pinBuffer.slice(0, -1);
+  updateDots(false);
+}
+
+async function handlePINComplete() {
+  const stored = localStorage.getItem('og_pin_hash');
+  if (!stored) {
+    // Setup mode
+    if (pinSetupStep === 0) {
+      pinFirst = pinBuffer;
+      pinBuffer = '';
+      updateDots(false);
+      document.getElementById('pin-subtitle').textContent = 'Confirm your PIN';
+      pinSetupStep = 1;
+    } else {
+      if (pinBuffer === pinFirst) {
+        const hash = await hashPIN(pinBuffer);
+        localStorage.setItem('og_pin_hash', hash);
+        pinBuffer = '';
+        unlockApp();
+      } else {
+        showPINError('PINs don\'t match — try again');
+        pinSetupStep = 0;
+        pinFirst = '';
+        document.getElementById('pin-subtitle').textContent = 'Choose a 4-digit PIN';
+      }
+    }
+  } else {
+    const hash = await hashPIN(pinBuffer);
+    if (hash === stored) {
+      pinBuffer = '';
+      unlockApp();
+    } else {
+      showPINError('Incorrect PIN');
+    }
+  }
+}
+
+function showPINError(msg) {
+  updateDots(true);
+  document.getElementById('pin-hint').textContent = msg;
+  setTimeout(() => {
+    pinBuffer = '';
+    updateDots(false);
+    document.getElementById('pin-hint').textContent = '';
+  }, 1200);
+}
+
+function unlockApp() {
+  document.getElementById('pin-screen').classList.add('hidden');
+  document.getElementById('main-screen').classList.remove('hidden');
+  initApp();
+}
+
+function lockApp() {
+  document.getElementById('main-screen').classList.add('hidden');
+  document.getElementById('pin-screen').classList.remove('hidden');
+  pinBuffer = '';
+  updateDots(false);
+  document.getElementById('pin-subtitle').textContent = 'Enter your PIN';
+}
+
+async function changePIN() {
+  pinSetupStep = 0;
+  pinBuffer = '';
+  pinFirst = '';
+  document.getElementById('pin-subtitle').textContent = 'Choose a new PIN';
+  lockApp();
+}
+
+// ═══════════════════════════════════════════════════════
+// APP INIT
+// ═══════════════════════════════════════════════════════
+function initApp() {
+  const now = new Date();
+  document.getElementById('topbar-date').textContent = now.toLocaleDateString('en-AU', { weekday:'long', day:'numeric', month:'long' });
+  const s = getSettings();
+  if (!s.registrarName) { s.registrarName = 'Dr Heather Lawrence'; saveSettings(s); }
+  document.getElementById('setting-name').value = s.registrarName;
+  if (s.defaultHospital) document.getElementById('setting-hospital').value = s.defaultHospital;
+  if (s.defaultHospitalType) document.getElementById('setting-hospital-type').value = s.defaultHospitalType;
+  if (s.trainingYear) document.getElementById('setting-training-year').value = s.trainingYear;
+  if (s.preCs) document.getElementById('setting-pre-cs').value = s.preCs;
+  if (s.preVacuum) document.getElementById('setting-pre-vacuum').value = s.preVacuum;
+  if (s.preForceps) document.getElementById('setting-pre-forceps').value = s.preForceps;
+  if (s.preDc) document.getElementById('setting-pre-dc').value = s.preDc;
+  // Populate category dropdown from PROC_TREE
+  const catSel = document.getElementById('f-category');
+  catSel.innerHTML = '<option value="">Select category...</option>' +
+    PROC_TREE.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
+  renderToday();
+  renderStats();
+}
+
+function showTab(name) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelector(`[data-tab="${name}"]`).classList.add('active');
+  if (name === 'all') renderAll();
+  if (name === 'stats') renderStats();
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER TODAY
+// ═══════════════════════════════════════════════════════
+function renderToday() {
+  const today = new Date().toISOString().slice(0, 10);
+  const entries = getEntries().filter(e => e.date === today).sort((a,b) => b.createdAt - a.createdAt);
+  const el = document.getElementById('tab-today');
+  if (entries.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="icon">🏥</div><h3>No procedures logged today</h3><p>Tap + to quickly log a procedure.<br>Your first time? Don't forget to set your name in Settings.</p></div>`;
+    return;
+  }
+  el.innerHTML = `<div class="section-header">Today — ${entries.length} procedure${entries.length!==1?'s':''}</div>` + entries.map(renderEntryCard).join('');
+}
+
+function renderAll() {
+  const q = (document.getElementById('search-input')?.value || '').toLowerCase();
+  const entries = getEntries().filter(e => !q || e.procedure?.toLowerCase().includes(q) || e.urn?.toLowerCase().includes(q) || e.supervisor?.toLowerCase().includes(q) || e.diagnosis?.toLowerCase().includes(q)).sort((a,b) => (b.date+b.createdAt).localeCompare(a.date+a.createdAt));
+  const el = document.getElementById('tab-all');
+  const existing = el.querySelector('#all-list');
+  const list = existing || document.createElement('div');
+  list.id = 'all-list';
+  if (entries.length === 0) { list.innerHTML = `<div class="empty-state"><div class="icon">📋</div><h3>${q ? 'No results' : 'No entries yet'}</h3><p>${q ? 'Try a different search.' : 'Tap + to log your first procedure.'}</p></div>`; }
+  else {
+    let html = '';
+    let lastDate = null;
+    for (const e of entries) {
+      if (e.date !== lastDate) {
+        const d = new Date(e.date + 'T12:00:00');
+        html += `<div class="section-header">${d.toLocaleDateString('en-AU', {weekday:'short', day:'numeric', month:'long', year:'numeric'})}</div>`;
+        lastDate = e.date;
+      }
+      html += renderEntryCard(e);
+    }
+    list.innerHTML = html;
+  }
+  if (!existing) el.appendChild(list);
+}
+
+function renderEntryCard(e) {
+  const icon = CATEGORY_ICONS[e.category] || '📋';
+  const supClass = SUPERVISION_COLORS[e.supervision] || 'sup2';
+  const supShort = e.supervision ? (SUPERVISION_SHORT[e.supervision] || e.supervision) : '';
+  const statusBadge = e.status === 'reviewed' ? '<span class="badge badge-reviewed">✓ RANZCOG</span>' : e.mode === 'quick' ? '<span class="badge badge-quick">Quick</span>' : '<span class="badge badge-full">Full</span>';
+  const time = e.createdAt ? new Date(e.createdAt).toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'}) : '';
+  return `<div class="entry-card" onclick="showDetail('${e.id}')">
+    <div class="entry-main">
+      <div class="entry-icon" style="background:var(--accent-bg)">${icon}</div>
+      <div class="entry-body">
+        <div class="entry-proc">${e.procedure || 'Unknown'}</div>
+        <div class="entry-meta">
+          ${e.supervisor ? `<span>👨‍⚕️ ${e.supervisor}</span>` : ''}
+          <span class="badge badge-${supClass}">${supShort}</span>
+          ${statusBadge}
+        </div>
+      </div>
+      <div class="entry-time">${time}</div>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// SUBMISSION DATES  (from ranzcog.edu.au, updated Oct 2026)
+// ═══════════════════════════════════════════════════════
+const SUBMISSION_DATES = [
+  // Semester 2, 2026 (Aug 3 2026 – Jan 31 2027)
+  { id: 'sub-s2-2026-pva', label: 'S2 2026 — Prospective Approval', due: '2026-06-08' },
+  { id: 'sub-s2-2026-fa',  label: 'S2 2026 — Formative Appraisal',  due: '2026-11-29' },
+  { id: 'sub-s2-2026-sum', label: 'S2 2026 — Summative Assessment',  due: '2027-02-28' },
+  // Semester 1, 2027
+  { id: 'sub-s1-2027-pva', label: 'S1 2027 — Prospective Approval', due: '2026-12-07' },
+  { id: 'sub-s1-2027-fa',  label: 'S1 2027 — Formative Appraisal',  due: '2027-05-30' },
+  { id: 'sub-s1-2027-sum', label: 'S1 2027 — Summative Assessment',  due: '2027-08-29' },
+  // Semester 2, 2027
+  { id: 'sub-s2-2027-pva', label: 'S2 2027 — Prospective Approval', due: '2027-06-07' },
+  { id: 'sub-s2-2027-fa',  label: 'S2 2027 — Formative Appraisal',  due: '2027-11-28' },
+  { id: 'sub-s2-2027-sum', label: 'S2 2027 — Summative Assessment',  due: '2028-03-05' },
+  // Semester 1, 2028
+  { id: 'sub-s1-2028-pva', label: 'S1 2028 — Prospective Approval', due: '2027-12-13' },
+  { id: 'sub-s1-2028-fa',  label: 'S1 2028 — Formative Appraisal',  due: '2028-06-04' },
+  { id: 'sub-s1-2028-sum', label: 'S1 2028 — Summative Assessment',  due: '2028-09-03' },
+  // Semester 2, 2028
+  { id: 'sub-s2-2028-pva', label: 'S2 2028 — Prospective Approval', due: '2028-06-12' },
+  { id: 'sub-s2-2028-fa',  label: 'S2 2028 — Formative Appraisal',  due: '2028-12-03' },
+  { id: 'sub-s2-2028-sum', label: 'S2 2028 — Summative Assessment',  due: '2029-03-04' },
+];
+
+// ═══════════════════════════════════════════════════════
+// CHECKLIST DATA
+// ═══════════════════════════════════════════════════════
+const CHECKLIST = [
+  { group: 'APSS Procedures — by 52 BTIT (Year 1)', minYear: 1, items: [
+    { id: 'apss-svb', label: 'Spontaneous vaginal birth' },
+    { id: 'apss-epi', label: 'Uncomplicated episiotomy and repair of 2nd degree perineal tear' },
+    { id: 'apss-vulval', label: "Minor perineal and vulval surgery (e.g. Bartholin's marsupialisation, excision vulval cyst)" },
+  ]},
+  { group: 'Workshops — by 52 BTIT (Year 1)', minYear: 1, items: [
+    { id: 'ws-found-surg', label: 'Foundations of Surgery Workshop' },
+    { id: 'ws-neo-resus', label: 'Neonatal Resuscitation In-Hospital Training' },
+    { id: 'ws-fetal-surv', label: 'Fetal Surveillance Workshop' },
+    { id: 'ws-basic-obs', label: 'Basic Obstetric Skills Workshop' },
+  ]},
+  { group: 'eLearning — by 52 BTIT (Year 1)', minYear: 1, items: [
+    { id: 'el-ultrasound', label: 'Ultrasound Modules (all modules)' },
+    { id: 'el-fdv', label: 'Family & Domestic Violence (FDV) Module' },
+  ]},
+  { group: 'APSS Procedures — by 104 BTIT (Year 2)', minYear: 2, items: [
+    { id: 'apss2-anaesthesia', label: 'Administration of local anaesthesia including pudendal block' },
+    { id: 'apss2-hysteroscopy', label: 'Diagnostic hysteroscopy, dilation & curettage (D&C)' },
+    { id: 'apss2-endometrial', label: 'Endometrial sampling, outpatient' },
+    { id: 'apss2-forceps', label: 'Instrumental birth — low/outlet forceps' },
+    { id: 'apss2-vacuum', label: 'Instrumental birth — low/outlet vacuum' },
+    { id: 'apss2-fbs', label: 'Intrapartum fetal scalp blood sampling' },
+    { id: 'apss2-iud', label: 'IUD (copper or hormonal) insertion' },
+    { id: 'apss2-lap', label: 'Laparoscopic surgery — RANZCOG/AGES skill levels 1-2A' },
+    { id: 'apss2-laparotomy', label: 'Laparotomy: Basic (oophorectomy, salpingo-oophorectomy, ovarian cystectomy)' },
+    { id: 'apss2-mrp', label: 'Manual removal of placenta' },
+    { id: 'apss2-cs', label: 'Simple caesarean section (LSCS, repeat LSCS)' },
+    { id: 'apss2-suction', label: 'Suction evacuation for retained products of conception' },
+    { id: 'apss2-us-a', label: 'Ultrasound A — Part 1 & 2' },
+  ]},
+  { group: 'APSS Procedures — by 208 BTIT (Years 3–4)', minYear: 3, items: [
+    { id: 'apss4-lap2b', label: 'Laparoscopic surgery — RANZCOG/AGES skill level 2B' },
+    { id: 'apss4-cystoscopy', label: 'Cystoscopy' },
+    { id: 'apss4-vaginal', label: 'Vaginal surgery: Basic (anterior +/or posterior repair & perineum)' },
+    { id: 'apss4-hysterectomy', label: 'Hysterectomy (vaginal, abdominal or laparoscopic)' },
+    { id: 'apss4-vulvoscopy', label: 'Vulvoscopy and Vulval biopsy (diagnostic)' },
+    { id: 'apss4-ecv', label: 'External cephalic version' },
+    { id: 'apss4-breech', label: 'Vaginal breech birth' },
+    { id: 'apss4-twin', label: 'Vaginal twin birth' },
+    { id: 'apss4-mid-ivb', label: 'Instrumental vaginal birth — midcavity or rotational (persistent transverse or OP)' },
+    { id: 'apss4-complex-cs', label: 'Complicated caesarean section (fully dilated, placenta praevia, classical CS)' },
+    { id: 'apss4-perineal', label: 'Repair of complicated perineal, vaginal and cervical lacerations including 3rd degree tears' },
+    { id: 'apss4-pph', label: 'Management of PPH — EUA +/- removal of retained products of conception' },
+    { id: 'apss4-us-b', label: 'Ultrasound B — Parts 1-4' },
+    { id: 'apss4-colposcopy', label: 'Colposcopy' },
+  ]},
+  { group: 'eLearning — by 104 BTIT (Year 2)', minYear: 2, items: [
+    { id: 'el-comms', label: 'Communication Skills Training' },
+    { id: 'el-cultural', label: 'Cultural Competency Training' },
+    { id: 'el-abortion', label: 'Abortion Module' },
+  ]},
+  { group: 'Workshop — by 104 BTIT (Year 2)', minYear: 2, items: [
+    { id: 'ws-comms', label: 'Communication Skills Training Workshop' },
+  ]},
+  { group: 'Workshop — by 156 BTIT (Year 3+)', minYear: 3, items: [
+    { id: 'ws-ultrasound', label: 'Ultrasound Workshop' },
+  ]},
+];
+
+function getChecklist() {
+  try { return JSON.parse(localStorage.getItem('og_checklist') || '[]'); } catch { return []; }
+}
+function toggleCheck(id) {
+  const checked = getChecklist();
+  const idx = checked.indexOf(id);
+  if (idx >= 0) checked.splice(idx, 1); else checked.push(id);
+  localStorage.setItem('og_checklist', JSON.stringify(checked));
+  renderStats();
+}
+
+function getCompletedSubmissions() {
+  try { return JSON.parse(localStorage.getItem('og_subs_done') || '[]'); } catch { return []; }
+}
+function toggleSubmission(id) {
+  const done = getCompletedSubmissions();
+  const idx = done.indexOf(id);
+  if (idx >= 0) done.splice(idx, 1); else done.push(id);
+  localStorage.setItem('og_subs_done', JSON.stringify(done));
+  renderStats();
+}
+
+// ═══════════════════════════════════════════════════════
+// SUBMISSION TIMELINE (tickable, ordered by date)
+// ═══════════════════════════════════════════════════════
+function renderSubmissionTimeline() {
+  const done = getCompletedSubmissions();
+  const today = new Date().toISOString().slice(0, 10);
+  const now = new Date();
+
+  // All dates sorted, split into pending (next 90 days only) and completed
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate() + 90);
+  const cutoffStr = cutoff.toISOString().slice(0, 10);
+  const sorted = [...SUBMISSION_DATES].sort((a, b) => a.due.localeCompare(b.due));
+  const pending = sorted.filter(d => !done.includes(d.id) && d.due <= cutoffStr);
+  const ago30 = new Date(); ago30.setDate(ago30.getDate() - 30);
+  const ago30Str = ago30.toISOString().slice(0, 10);
+  const completed = sorted.filter(d => done.includes(d.id) && d.due >= ago30Str);
+
+  if (pending.length === 0 && completed.length === 0) return '';
+
+  const makeItem = (d, isDone) => {
+    const dueDate = new Date(d.due + 'T12:00:00');
+    const daysLeft = Math.ceil((dueDate - now) / 86400000);
+    const isOverdue = !isDone && d.due < today;
+    const urgent = !isDone && !isOverdue && daysLeft <= 14;
+    const soon   = !isDone && !isOverdue && daysLeft <= 30;
+
+    let badge = '';
+    if (isDone) {
+      badge = `<div style="color:var(--accent2);font-size:13px;font-weight:700;flex-shrink:0;">✓</div>`;
+    } else if (isOverdue) {
+      badge = `<div style="background:var(--red-bg);color:var(--red);font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0;">overdue</div>`;
+    } else {
+      const col = urgent ? 'var(--red)' : soon ? 'var(--amber)' : 'var(--accent2)';
+      const bg  = urgent ? 'var(--red-bg)' : soon ? 'var(--amber-bg)' : 'var(--accent-bg)';
+      badge = `<div style="background:${bg};color:${col};font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0;">${daysLeft}d</div>`;
+    }
+
+    const opacity = isDone ? '0.5' : '1';
+    const textStyle = isDone ? 'text-decoration:line-through;color:var(--text3);' : '';
+    const borderCol = isOverdue ? 'rgba(176,64,64,0.25)' : 'var(--border)';
+
+    return `<div onclick="toggleSubmission('${d.id}')" style="cursor:pointer;background:var(--card);border:1px solid ${borderCol};border-radius:var(--radius-sm);padding:12px 14px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);margin-bottom:7px;opacity:${opacity};transition:opacity 0.2s;">
+      <div style="width:22px;height:22px;border-radius:6px;border:2px solid ${isDone ? 'var(--accent)' : 'var(--border)'};background:${isDone ? 'var(--accent)' : 'transparent'};flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+        ${isDone ? '<span style="color:white;font-size:12px;font-weight:700;">✓</span>' : ''}
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:14px;font-weight:600;${textStyle}">${d.label}</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px;">${isDone ? 'Completed · ' : ''}Due ${dueDate.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}</div>
+      </div>
+      ${isDone ? '' : badge}
+    </div>`;
+  };
+
+  const pendingHTML = pending.map(d => makeItem(d, false)).join('');
+  const completedHTML = completed.length
+    ? `<div style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.7px;margin:12px 0 7px;">Completed</div>${completed.map(d => makeItem(d, true)).join('')}`
+    : '';
+
+  return `<div class="section-header">RANZCOG Submission Deadlines</div><div style="margin:4px 16px 0;">${pendingHTML}${completedHTML}</div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════════════════════
+function countProc(entries, ...keywords) {
+  return entries.filter(e => e.procedure && keywords.some(k => e.procedure.toLowerCase().includes(k.toLowerCase()))).length;
+}
+
+function renderStats() {
+  const entries = getEntries();
+  const s = getSettings();
+  const total = entries.length;
+  const today = entries.filter(e => e.date === new Date().toISOString().slice(0,10)).length;
+  const reviewed = entries.filter(e => e.status === 'reviewed').length;
+
+  // Key procedure counts
+  const logCS = countProc(entries, 'CS —', 'Caesarean');
+  const logVac = countProc(entries, 'vacuum', 'ventouse', 'Vacuum', 'Ventouse');
+  const logForc = countProc(entries, 'forceps', 'Forceps');
+  const logDC = countProc(entries, 'Suction D&C', 'ERPC', 'D&C', 'Surgical TOP');
+  const preCS = s.preCs || 0;
+  const preVac = s.preVacuum || 0;
+  const preForc = s.preForceps || 0;
+  const preDC = s.preDc || 0;
+
+  const supCounts = { direct: 0, indirect: 0 };
+  entries.forEach(e => {
+    if (!e.supervision) return;
+    if (e.supervision.startsWith('direct')) supCounts.direct++;
+    else if (e.supervision.startsWith('indirect')) supCounts.indirect++;
+  });
+
+  function procCard(icon, label, logbookN, preN) {
+    const total = logbookN + preN;
+    const preNote = preN > 0 ? `<div style="font-size:11px;color:var(--text3);margin-top:3px;">${logbookN} here + ${preN} prior</div>` : '';
+    return `<div class="stat-card" style="display:flex;flex-direction:column;gap:4px;">
+      <div style="font-size:20px;margin-bottom:2px;">${icon}</div>
+      <div class="stat-number">${total}</div>
+      <div class="stat-label">${label}</div>
+      ${preNote}
+    </div>`;
+  }
+
+  // Checklist — filter by training year
+  const trainingYear = +(s.trainingYear) || 0;
+  const visibleGroups = CHECKLIST.filter(g => !trainingYear || g.minYear <= trainingYear);
+  const checked = getChecklist();
+  const allItems = visibleGroups.flatMap(g => g.items);
+  const doneCount = allItems.filter(i => checked.includes(i.id)).length;
+  const checklistPct = allItems.length ? Math.round(doneCount / allItems.length * 100) : 0;
+  const yearLabel = trainingYear ? ` (Year ${trainingYear})` : '';
+
+  const checklistHTML = visibleGroups.map(group => `
+    <div class="checklist-group">
+      <div class="checklist-group-title">${group.group}</div>
+      ${group.items.map(item => {
+        const done = checked.includes(item.id);
+        return `<div class="checklist-item ${done ? 'checked' : ''}" onclick="toggleCheck('${item.id}')">
+          <div class="check-box"><span class="check-tick">✓</span></div>
+          <div class="check-label">${item.label}</div>
+        </div>`;
+      }).join('')}
+    </div>`).join('');
+
+  document.getElementById('tab-stats').innerHTML = `
+    ${renderSubmissionTimeline()}
+    <div class="section-header">Key Procedures</div>
+    <div class="stats-grid" style="padding-top:4px;">
+      ${procCard('🏥', 'Caesarean sections', logCS, preCS)}
+      ${procCard('🪂', 'Vacuum / Ventouse', logVac, preVac)}
+      ${procCard('🔧', 'Forceps', logForc, preForc)}
+      ${procCard('💉', 'Suction D&C / ERPC', logDC, preDC)}
+    </div>
+    <div class="section-header" style="margin-top:4px;">Overview</div>
+    <div class="stats-grid" style="padding-top:4px;">
+      <div class="stat-card"><div class="stat-number">${total}</div><div class="stat-label">Total logged</div></div>
+      <div class="stat-card"><div class="stat-number">${reviewed}</div><div class="stat-label">In RANZCOG system</div></div>
+      <div class="stat-card"><div class="stat-number">${supCounts.direct}</div><div class="stat-label">Direct supervision</div></div>
+      <div class="stat-card"><div class="stat-number">${supCounts.indirect}</div><div class="stat-label">Indirect supervision</div></div>
+    </div>
+    <div class="section-header" style="margin-top:4px;">FRANZCOG Training Checklist${yearLabel}</div>
+    ${!trainingYear ? '<div style="font-size:12px;color:var(--text3);margin:0 16px 8px;line-height:1.5;">Set your training year in Settings to see only the requirements relevant to you.</div>' : ''}
+    <div class="checklist-progress">
+      <div class="checklist-progress-bar-bg"><div class="checklist-progress-bar" style="width:${checklistPct}%"></div></div>
+      <div class="checklist-progress-label">${doneCount} of ${allItems.length} requirements ticked off</div>
+    </div>
+    ${checklistHTML}
+    <div style="height:16px;"></div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// DRAWER — ADD / EDIT
+// ═══════════════════════════════════════════════════════
+let currentMode = 'quick';
+let currentEditId = null;
+let capturedPhotoData = null;
+
+function openDrawer(editId) {
+  currentEditId = editId;
+  capturedPhotoData = null;
+  const s = getSettings();
+
+  if (editId) {
+    const entry = getEntries().find(e => e.id === editId);
+    if (!entry) return;
+    document.getElementById('drawer-title').textContent = 'Edit Entry';
+    setMode(entry.mode || 'full');
+    document.getElementById('f-date').value = entry.date || '';
+    document.getElementById('f-urn').value = entry.urn || '';
+    document.getElementById('f-category').value = entry.category || '';
+    updateProcSubcats();
+    // Restore subcategory if applicable
+    if (entry.procedure && entry.category) {
+      const cat = PROC_TREE.find(c => c.id === entry.category);
+      if (cat && cat.subs) {
+        const subIdx = cat.subs.findIndex(s => s.procs.includes(entry.procedure));
+        if (subIdx >= 0) {
+          setTimeout(() => {
+            document.getElementById('f-subcat').value = String(subIdx);
+            updateProcList();
+            setTimeout(() => { document.getElementById('f-procedure').value = entry.procedure; }, 50);
+          }, 60);
+        }
+      } else {
+        setTimeout(() => { document.getElementById('f-procedure').value = entry.procedure || ''; }, 50);
+      }
+    }
+    document.getElementById('f-setting').value = entry.setting || '';
+    document.getElementById('f-supervision').value = entry.supervision || '';
+    document.getElementById('f-supervisor').value = entry.supervisor || '';
+    document.getElementById('f-diagnosis').value = entry.diagnosis || '';
+    document.getElementById('f-findings').value = entry.findings || '';
+    document.getElementById('f-complications').value = entry.complications || '';
+    document.getElementById('f-hospital').value = entry.hospital || '';
+    document.getElementById('f-hospital-type').value = entry.hospitalType || '';
+    document.getElementById('f-learning').value = entry.learning || '';
+    if (entry.photoData) { capturedPhotoData = entry.photoData; document.getElementById('photo-img').src = entry.photoData; document.getElementById('photo-preview').classList.remove('hidden'); document.getElementById('photo-btn').style.display = 'none'; }
+    document.getElementById('entry-id').value = editId;
+  } else {
+    document.getElementById('drawer-title').textContent = 'Log Procedure';
+    document.getElementById('entry-form').reset();
+    document.getElementById('entry-id').value = '';
+    document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
+    if (s.defaultHospital) document.getElementById('f-hospital').value = s.defaultHospital;
+    if (s.defaultHospitalType) document.getElementById('f-hospital-type').value = s.defaultHospitalType;
+    document.getElementById('photo-preview').classList.add('hidden');
+    document.getElementById('photo-btn').style.display = '';
+    // Repopulate category after reset (reset clears it but not the options)
+    const catSel = document.getElementById('f-category');
+    catSel.innerHTML = '<option value="">Select category...</option>' +
+      PROC_TREE.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
+    document.getElementById('f-subcat-group').style.display = 'none';
+    document.getElementById('f-procedure').innerHTML = '<option value="">Select procedure...</option>';
+    setMode('quick');
+    renderSuggestions();
+  }
+
+  document.getElementById('drawer-overlay').classList.add('visible');
+  document.getElementById('drawer').classList.add('open');
+}
+
+function closeDrawer() {
+  document.getElementById('drawer-overlay').classList.remove('visible');
+  document.getElementById('drawer').classList.remove('open');
+}
+
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('mode-quick').classList.toggle('active', mode === 'quick');
+  document.getElementById('mode-full').classList.toggle('active', mode === 'full');
+  document.querySelectorAll('.full-only').forEach(el => el.style.display = mode === 'full' ? '' : 'none');
+}
+
+// ── 3-level procedure picker ──────────────────────────
+function updateProcSubcats() {
+  const catId = document.getElementById('f-category').value;
+  const cat = PROC_TREE.find(c => c.id === catId);
+  const subcatGroup = document.getElementById('f-subcat-group');
+  const subcatSel = document.getElementById('f-subcat');
+  const procSel = document.getElementById('f-procedure');
+  procSel.innerHTML = '<option value="">Select procedure...</option>';
+  if (!cat) { subcatGroup.style.display = 'none'; return; }
+  if (cat.subs) {
+    subcatGroup.style.display = '';
+    subcatSel.innerHTML = '<option value="">Select sub-type...</option>' +
+      cat.subs.map((s, i) => `<option value="${i}">${s.label}</option>`).join('');
+    subcatSel.value = '';
+  } else {
+    subcatGroup.style.display = 'none';
+    procSel.innerHTML = '<option value="">Select procedure...</option>' +
+      (cat.procs || []).map(p => `<option value="${p}">${p}</option>`).join('');
+  }
+}
+
+function updateProcList() {
+  const catId = document.getElementById('f-category').value;
+  const subcatIdx = document.getElementById('f-subcat').value;
+  const cat = PROC_TREE.find(c => c.id === catId);
+  const procSel = document.getElementById('f-procedure');
+  if (!cat || !cat.subs || subcatIdx === '') {
+    procSel.innerHTML = '<option value="">Select procedure...</option>'; return;
+  }
+  const sub = cat.subs[+subcatIdx];
+  procSel.innerHTML = '<option value="">Select procedure...</option>' +
+    (sub?.procs || []).map(p => `<option value="${p}">${p}</option>`).join('');
+}
+
+// kept as alias for edit-path compat
+function updateProcedureList() { updateProcSubcats(); }
+
+// ── Suggestions ──────────────────────────────────────
+function renderSuggestions() {
+  const entries = getEntries();
+  const counts = {};
+  entries.forEach(e => { if (e.procedure) counts[e.procedure] = (counts[e.procedure] || 0) + 1; });
+  const top3 = Object.entries(counts).sort((a,b) => b[1]-a[1]).slice(0, 3).map(([p]) => p);
+  const el = document.getElementById('proc-suggestions');
+  const list = document.getElementById('proc-suggestions-list');
+  if (!el || top3.length === 0) { if (el) el.style.display = 'none'; return; }
+  el.style.display = '';
+  list.innerHTML = top3.map(proc => {
+    const safe = proc.replace(/'/g, "\\'");
+    return `<button type="button" onclick="selectSuggestedProc('${safe}')" style="text-align:left;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:14px;color:var(--text);cursor:pointer;width:100%;transition:background 0.1s;" onmousedown="this.style.background='var(--card2)'" onmouseup="this.style.background='var(--card)'">${proc}</button>`;
+  }).join('');
+}
+
+function selectSuggestedProc(proc) {
+  for (const cat of PROC_TREE) {
+    if (cat.procs && cat.procs.includes(proc)) {
+      document.getElementById('f-category').value = cat.id;
+      updateProcSubcats();
+      setTimeout(() => { document.getElementById('f-procedure').value = proc; }, 50);
+      return;
+    }
+    if (cat.subs) {
+      for (let i = 0; i < cat.subs.length; i++) {
+        if (cat.subs[i].procs.includes(proc)) {
+          document.getElementById('f-category').value = cat.id;
+          updateProcSubcats();
+          setTimeout(() => {
+            document.getElementById('f-subcat').value = String(i);
+            updateProcList();
+            setTimeout(() => { document.getElementById('f-procedure').value = proc; }, 50);
+          }, 60);
+          return;
+        }
+      }
+    }
+  }
+}
+
+function saveEntry() {
+  const dateVal = document.getElementById('f-date').value;
+  const catVal = document.getElementById('f-category').value;
+  const procVal = document.getElementById('f-procedure').value;
+  const supVal = document.getElementById('f-supervision').value;
+
+  if (!dateVal || !catVal || !procVal || !supVal) {
+    alert('Please fill in the required fields: Date, Category, Procedure, and Supervision level.');
+    return;
+  }
+
+  const entries = getEntries();
+  const id = currentEditId || uuid();
+  const existing = currentEditId ? entries.find(e => e.id === currentEditId) : null;
+
+  const entry = {
+    id,
+    mode: currentMode,
+    status: existing?.status || 'logged',
+    createdAt: existing?.createdAt || Date.now(),
+    updatedAt: Date.now(),
+    date: dateVal,
+    urn: document.getElementById('f-urn').value.trim(),
+    category: catVal,
+    procedure: procVal,
+    setting: document.getElementById('f-setting').value,
+    supervision: supVal,
+    supervisor: document.getElementById('f-supervisor').value.trim(),
+    diagnosis: document.getElementById('f-diagnosis').value.trim(),
+    findings: document.getElementById('f-findings').value.trim(),
+    complications: document.getElementById('f-complications').value.trim(),
+    hospital: document.getElementById('f-hospital').value.trim(),
+    hospitalType: document.getElementById('f-hospital-type').value,
+    learning: document.getElementById('f-learning').value.trim(),
+    photoData: capturedPhotoData || null,
+  };
+
+  if (currentEditId) {
+    const idx = entries.findIndex(e => e.id === currentEditId);
+    if (idx >= 0) entries[idx] = entry;
+  } else {
+    entries.push(entry);
+  }
+  saveEntries(entries);
+  closeDrawer();
+  renderToday();
+  renderAll();
+  renderStats();
+}
+
+// ═══════════════════════════════════════════════════════
+// DETAIL VIEW
+// ═══════════════════════════════════════════════════════
+let currentDetailId = null;
+
+function showDetail(id) {
+  currentDetailId = id;
+  const entry = getEntries().find(e => e.id === id);
+  if (!entry) return;
+
+  const supLabel = document.querySelector(`#f-supervision option[value="${entry.supervision}"]`)?.textContent || entry.supervision || '—';
+  const d = new Date(entry.date + 'T12:00:00');
+  document.getElementById('detail-title').textContent = entry.procedure || 'Entry';
+  document.getElementById('detail-date').textContent = d.toLocaleDateString('en-AU', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+
+  const rows = [
+    ['Patient URN', entry.urn || '—'],
+    ['Category', entry.category?.replace(/-/g,' ')?.replace(/\b\w/g,c=>c.toUpperCase()) || '—'],
+    ['Setting', entry.setting || '—'],
+    ['Supervision', supLabel],
+    ['Consultant/Supervisor', entry.supervisor || '—'],
+    ['Diagnosis/Indication', entry.diagnosis || '—'],
+    ['Operative Findings', entry.findings || '—'],
+    ['Complications', entry.complications || '—'],
+    ['Hospital', entry.hospital || '—'],
+    ['Learning Points', entry.learning || '—'],
+    ['Entry Type', entry.mode === 'quick' ? 'Quick entry' : 'Full RANZCOG'],
+    ['RANZCOG Status', entry.status === 'reviewed' ? '✓ Logged in RANZCOG system' : 'Pending review'],
+  ].filter(([,v]) => v && v !== '—');
+
+  document.getElementById('detail-body').innerHTML =
+    (entry.photoData ? `<div style="margin:16px 20px 0;border-radius:var(--radius);overflow:hidden;"><img src="${entry.photoData}" style="width:100%;display:block;max-height:140px;object-fit:cover;"></div>` : '') +
+    `<div class="detail-section"><div style="display:flex;flex-direction:column;">` +
+    rows.map(([k,v]) => `<div class="detail-row"><div class="detail-key">${k}</div><div class="detail-val">${v}</div></div>`).join('') +
+    `</div></div>`;
+
+  document.getElementById('btn-reviewed').textContent = entry.status === 'reviewed' ? '✓ Marked as reviewed' : 'Mark Reviewed in RANZCOG';
+  document.getElementById('detail-overlay').style.opacity = '1';
+  document.getElementById('detail-overlay').style.pointerEvents = 'all';
+  document.getElementById('detail-drawer').style.transform = 'translateY(0)';
+}
+
+function closeDetail() {
+  document.getElementById('detail-overlay').style.opacity = '0';
+  document.getElementById('detail-overlay').style.pointerEvents = 'none';
+  document.getElementById('detail-drawer').style.transform = 'translateY(100%)';
+  currentDetailId = null;
+}
+
+function deleteCurrentEntry() {
+  if (!currentDetailId) return;
+  if (!confirm('Delete this entry? This cannot be undone.')) return;
+  const entries = getEntries().filter(e => e.id !== currentDetailId);
+  saveEntries(entries);
+  closeDetail();
+  renderToday();
+  renderAll();
+  renderStats();
+}
+
+function markReviewed() {
+  if (!currentDetailId) return;
+  const entries = getEntries();
+  const idx = entries.findIndex(e => e.id === currentDetailId);
+  if (idx < 0) return;
+  entries[idx].status = entries[idx].status === 'reviewed' ? 'logged' : 'reviewed';
+  saveEntries(entries);
+  showDetail(currentDetailId);
+  renderToday();
+  renderAll();
+  renderStats();
+}
+
+function editCurrentEntry() {
+  const id = currentDetailId;
+  closeDetail();
+  setTimeout(() => openDrawer(id), 300);
+}
+
+// ═══════════════════════════════════════════════════════
+// CAMERA & OCR — uses native file input (works on iOS local files)
+// ═══════════════════════════════════════════════════════
+function startCamera() {
+  // Use native file input with capture attribute — works on iOS/Android without HTTPS
+  const input = document.getElementById('native-camera-input');
+  input.click();
+}
+
+function handleNativePhoto(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    // Resize large images before OCR to keep things snappy
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.getElementById('camera-canvas');
+      const MAX = 1200;
+      const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      capturedPhotoData = canvas.toDataURL('image/jpeg', 0.88);
+
+      document.getElementById('photo-img').src = capturedPhotoData;
+      document.getElementById('photo-preview').classList.remove('hidden');
+      document.getElementById('photo-btn').style.display = 'none';
+      runOCR(capturedPhotoData);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+  // Reset so the same file can be re-selected if needed
+  event.target.value = '';
+}
+
+function removePhoto() {
+  capturedPhotoData = null;
+  document.getElementById('photo-preview').classList.add('hidden');
+  document.getElementById('photo-btn').style.display = '';
+  document.getElementById('ocr-status').classList.remove('visible');
+}
+
+async function runOCR(imageData) {
+  const status = document.getElementById('ocr-status');
+  status.textContent = '📖 Reading patient label...';
+  status.classList.add('visible');
+
+  try {
+    // Load Tesseract.js lazily
+    if (!window.Tesseract) {
+      await new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+
+    const { data: { text } } = await Tesseract.recognize(imageData, 'eng', { logger: m => { if (m.status === 'recognizing text') status.textContent = `📖 Reading... ${Math.round(m.progress * 100)}%`; } });
+
+    // Parse OCR text for patient details
+    const extracted = parsePatientLabel(text);
+    if (extracted.urn) document.getElementById('f-urn').value = extracted.urn;
+
+    const found = Object.values(extracted).filter(Boolean).length;
+    status.textContent = found > 0 ? `✅ Extracted ${found} field${found!==1?'s':''}. Please review and correct.` : '⚠️ Couldn\'t extract details — please enter manually.';
+    setTimeout(() => status.classList.remove('visible'), 4000);
+  } catch (err) {
+    status.textContent = '⚠️ OCR failed — please enter details manually.';
+    setTimeout(() => status.classList.remove('visible'), 3000);
+  }
+}
+
+function parsePatientLabel(text) {
+  const result = { urn: null, name: null, dob: null };
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+
+  // URN: 6-10 consecutive digits
+  const urnMatch = text.match(/\b(\d{6,10})\b/);
+  if (urnMatch) result.urn = urnMatch[1];
+
+  // DOB: various date formats
+  const dobPatterns = [
+    /\bDOB[:\s]+(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})/i,
+    /\bD\.O\.B[:\s]+(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})/i,
+    /\b(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4})\b/,
+    /\b(\d{4}-\d{2}-\d{2})\b/,
+  ];
+  for (const p of dobPatterns) {
+    const m = text.match(p);
+    if (m) {
+      // Try to format as YYYY-MM-DD
+      const raw = m[1];
+      const parts = raw.split(/[\/\-\.]/);
+      if (parts.length === 3) {
+        let d, mo, y;
+        if (parts[0].length === 4) { y=parts[0]; mo=parts[1]; d=parts[2]; }
+        else { d=parts[0]; mo=parts[1]; y=parts[2].length===2?'20'+parts[2]:parts[2]; }
+        result.dob = `${y}-${mo.padStart(2,'0')}-${d.padStart(2,'0')}`;
+      }
+      break;
+    }
+  }
+
+  // Name: look for lines with ALL CAPS words, avoid address/hospital lines
+  const stopWords = ['HOSPITAL', 'HEALTH', 'WARD', 'UNIT', 'DEPT', 'DR', 'MR', 'URN', 'DOB', 'MRN', 'ADMIT', 'ROOM', 'BED', 'NSW', 'VIC', 'QLD', 'WA', 'SA', 'TAS', 'ACT'];
+  for (const line of lines) {
+    const words = line.split(/\s+/);
+    if (words.length >= 2 && words.length <= 5 && words.every(w => /^[A-Z][A-Z\-']{1,}$/.test(w)) && !words.some(w => stopWords.includes(w))) {
+      result.name = words.join(' ');
+      break;
+    }
+  }
+
+  return result;
+}
+
+// ═══════════════════════════════════════════════════════
+// EXPORT / IMPORT
+// ═══════════════════════════════════════════════════════
+function exportCSV() {
+  const entries = getEntries();
+  if (!entries.length) { alert('No entries to export.'); return; }
+  const cols = ['date','urn','category','procedure','setting','supervision','supervisor','diagnosis','findings','complications','hospital','hospitalType','learning','status','mode'];
+  const headers = ['Date','URN','Category','Procedure','Setting','Supervision','Supervisor','Diagnosis/Indication','Operative Findings','Complications','Hospital','Hospital Type','Learning Points','Status','Mode'];
+  const esc = v => {
+    const s = v === undefined || v === null ? '' : String(v);
+    return s.includes(',') || s.includes('"') || s.includes('\n') ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+  const rows = [headers.join(','), ...entries.sort((a,b) => a.date.localeCompare(b.date)).map(e => cols.map(c => esc(e[c])).join(','))];
+  const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `og-logbook-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+function exportData() {
+  const data = { version: 1, exportedAt: new Date().toISOString(), settings: getSettings(), entries: getEntries() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `og-logbook-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.entries) { alert('Invalid file format.'); return; }
+      const existing = getEntries();
+      const existingIds = new Set(existing.map(e => e.id));
+      const newEntries = data.entries.filter(e => !existingIds.has(e.id));
+      const merged = [...existing, ...newEntries].sort((a,b) => (b.date+b.createdAt).localeCompare(a.date+a.createdAt));
+      saveEntries(merged);
+      if (data.settings) { const s = getSettings(); saveSettings({...s, ...data.settings}); }
+      alert(`Imported ${newEntries.length} new entries (${data.entries.length - newEntries.length} already existed).`);
+      initApp();
+      renderAll();
+      event.target.value = '';
+    } catch { alert('Could not read file. Make sure it\'s a valid O&G Logbook export.'); }
+  };
+  reader.readAsText(file);
+}
+
+// ═══════════════════════════════════════════════════════
+// STARTUP
+// ═══════════════════════════════════════════════════════
+(function init() {
+  // Skip PIN — open app directly
+  unlockApp();
+})();
+</script>
+</body>
+</html>
