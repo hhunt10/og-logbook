@@ -312,9 +312,9 @@ input[type="hidden"] { display: none; }
           </button>
         </div>
         <div class="settings-item">
-          <button class="settings-btn" onclick="exportData()">
-            <div class="settings-icon" style="background:var(--green-bg);">💾</div>
-            <div class="settings-info"><div class="settings-label">Backup (JSON)</div><div class="settings-desc">Full backup — restore to any device</div></div>
+          <button class="settings-btn" onclick="confirmJsonExport()">
+            <div class="settings-icon" style="background:var(--amber-bg);">💾</div>
+            <div class="settings-info"><div class="settings-label">Backup (JSON)</div><div class="settings-desc">⚠️ Includes any attached photos — store securely</div></div>
             <div class="settings-arrow">›</div>
           </button>
         </div>
@@ -354,13 +354,12 @@ input[type="hidden"] { display: none; }
 
     <!-- Photo capture -->
     <div class="photo-btn" id="photo-btn" onclick="startCamera()">
-      📸 Capture Patient Label (auto-fills fields)
+      📸 Add optional photo
     </div>
     <div class="photo-preview hidden" id="photo-preview">
-      <img id="photo-img" src="" alt="Patient label">
+      <img id="photo-img" src="" alt="Attached photo">
       <button class="photo-remove" onclick="removePhoto()">✕</button>
     </div>
-    <div class="ocr-status" id="ocr-status">Reading label...</div>
 
     <form id="entry-form" onsubmit="saveEntry(event)">
       <input type="hidden" id="entry-id">
@@ -1389,7 +1388,6 @@ function handleNativePhoto(event) {
       document.getElementById('photo-img').src = capturedPhotoData;
       document.getElementById('photo-preview').classList.remove('hidden');
       document.getElementById('photo-btn').style.display = 'none';
-      runOCR(capturedPhotoData);
     };
     img.src = e.target.result;
   };
@@ -1484,6 +1482,14 @@ function parsePatientLabel(text) {
 // ═══════════════════════════════════════════════════════
 // EXPORT / IMPORT
 // ═══════════════════════════════════════════════════════
+function confirmJsonExport() {
+  const hasPhotos = getEntries().some(e => e.photoData);
+  if (hasPhotos) {
+    if (!confirm('This backup includes attached photos.\n\nStore the file securely — do not email it or save it to a shared location.\n\nFor sharing statistics only, use Export as CSV instead (no photos included).\n\nContinue with full backup?')) return;
+  }
+  exportData();
+}
+
 function exportCSV() {
   const entries = getEntries();
   if (!entries.length) { alert('No entries to export.'); return; }
