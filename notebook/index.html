@@ -201,7 +201,7 @@ button { font-family: inherit; }
 
     <div class="form-group">
       <label class="form-label" for="p-name">Name</label>
-      <input class="form-input" id="p-name" placeholder="SURNAME, Firstname" autocapitalize="words" autocomplete="off">
+      <input class="form-input" id="p-name" placeholder="Firstname Lastname" autocapitalize="words" autocomplete="off">
     </div>
     <div class="form-row">
       <div class="form-group">
@@ -317,6 +317,7 @@ const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; 
 let patients = load('nb_patients', []);
 let jobs = load('nb_jobs', []);
 let settings = load('nb_settings', {});
+if (!settings.namesFirstLast) { patients.forEach(p => { p.name = normName(p.name); }); settings.namesFirstLast = true; localStorage.setItem('nb_patients', JSON.stringify(patients)); localStorage.setItem('nb_settings', JSON.stringify(settings)); }
 function persist() {
   localStorage.setItem('nb_patients', JSON.stringify(patients));
   localStorage.setItem('nb_jobs', JSON.stringify(jobs));
@@ -584,7 +585,7 @@ function closePatient() {
   document.activeElement?.blur?.();
 }
 function savePatient() {
-  const name = document.getElementById('p-name').value.trim();
+  const name = normName(document.getElementById('p-name').value);
   const urn = document.getElementById('p-urn').value.trim();
   const dob = document.getElementById('p-dob').value.trim();
   const note = document.getElementById('p-note').value.trim();
@@ -697,19 +698,29 @@ function applyParsed(r, raw, fromPaste) {
 const STOP = new Set(['HOSPITAL','HEALTH','HHS','QUEENSLAND','QLD','LOGAN','WARD','UNIT','DR','MR','MRS','MS','MISS','SEX','MALE','FEMALE','DOB','URN','MRN','UR','ADDRESS','MEDICARE','PHONE','PH','MOB','ROAD','RD','ST','STREET','DRIVE','DR.','AVE','AVENUE','COURT','CT','CRES','PLACE','PL','STATE','NSW','VIC','SA','WA','TAS','NT','ACT','AUSTRALIA','ADMIT','ADMITTED','ADM','BED','ROOM','CONSULTANT','DOCTOR','NOK','RELIGION','DVA','PRIVATE','PUBLIC','METRO','SOUTH','NORTH','EAST','WEST','SERVICE','SERVICES','CENTRE','CENTER','CLINIC','EMERGENCY','DEPARTMENT','PATIENT','NAME','AGE','YRS','EPISODE','VISIT','ENC','DATE','LABEL']);
 const MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
 function titleCase(s) { return s.toLowerCase().replace(/(^|[\s'\-])([a-z])/g, (m, a, b) => a + b.toUpperCase()); }
+// Names are always shown as "Firstname Lastname"
+function niceCase(word) { return (word === word.toUpperCase() || word === word.toLowerCase()) ? titleCase(word) : word; }
+function niceWords(s) { return s.split(' ').filter(Boolean).map(niceCase).join(' '); }
 function fmtName(raw) {
   const s = raw.replace(/\s+/g, ' ').trim().replace(/[^A-Za-z ,'\-]/g, '');
   if (s.includes(',')) {
     const [sur, ...rest] = s.split(',');
-    return `${sur.trim().toUpperCase()}, ${titleCase(rest.join(' ').trim())}`.replace(/,\s*$/, '');
+    return niceWords(`${rest.join(' ').trim()} ${sur.trim()}`);
   }
   const w = s.split(' ').filter(Boolean);
-  if (w.length < 2) return s.toUpperCase();
-  // the ALL-CAPS word is the surname when the rest are mixed case; otherwise assume SURNAME first (QH label style)
+  if (w.length < 2) return niceWords(s);
+  // On labels the ALL-CAPS word is the surname when the rest are mixed case; otherwise assume SURNAME first (QH label style)
   let si = w.findIndex(x => x.length > 1 && x === x.toUpperCase());
   if (si < 0 || w.every(x => x === x.toUpperCase())) si = 0;
   const sur = w[si], given = w.filter((_, i) => i !== si);
-  return `${sur.toUpperCase()}, ${titleCase(given.join(' '))}`;
+  return niceWords(`${given.join(' ')} ${sur}`);
+}
+// For names typed by hand: flip "Smith, Jane" to "Jane Smith"; otherwise keep the order typed
+function normName(raw) {
+  const s = String(raw || '').replace(/\s+/g, ' ').trim();
+  if (!s) return '';
+  if (s.includes(',')) { const [sur, ...rest] = s.split(','); return niceWords(`${rest.join(' ').trim()} ${sur.trim()}`); }
+  return niceWords(s);
 }
 function parseSticker(raw) {
   const text = raw.replace(/[|]/g, 'I').replace(/[“”]/g, '"');
@@ -739,7 +750,7 @@ function parseSticker(raw) {
   if (!r.name) {
     for (const l of lines) {
       const mm = l.match(/^([A-Z][A-Z'\-]+(?:\s[A-Z][A-Z'\-]+)?)\s*,\s*([A-Za-z][A-Za-z'\-]+(?:\s[A-Za-z][A-Za-z'\-]+)?)/);
-      if (mm && !STOP.has(mm[1].toUpperCase())) { r.name = `${mm[1]}, ${titleCase(mm[2])}`; break; }
+      if (mm && !STOP.has(mm[1].toUpperCase())) { r.name = fmtName(`${mm[1]}, ${mm[2]}`); break; }
     }
   }
   if (!r.name) {
